@@ -24,7 +24,9 @@ add_executable(barkin src/main.cpp)
 
 # Apparently CMake has namespace, so will have to check what the actual name is used in the proect() CMakeLists is. 
 # I.e. find_package(Eigen3) uses Eigen3::Eigen namespace, where in the root folder's CMakeLists uses project(Eigen)
-target_link_libraries(barkin rmf_fleet_adapter::rmf_fleet_adapter rclcpp::rclcpp)
+target_link_libraries(barkin 
+  rmf_fleet_adapter::rmf_fleet_adapter
+  rclcpp::rclcpp)
 
 # ament_target_dependencies(barkin
 #   rclcpp

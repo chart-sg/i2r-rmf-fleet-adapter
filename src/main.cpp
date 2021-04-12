@@ -1,3 +1,4 @@
+#include <rclcpp/rclcpp.hpp>
 #include <rmf_fleet_adapter/agv/Adapter.hpp>
 
 class Axolotl_Fleet //: public rmf_fleet_adapter::agv::Adapter 
@@ -13,9 +14,9 @@ public:
 
 int main(int argc, char * argv[])
 {
-    // rclcpp::init(argc, argv);
-    // rclcpp::spin(std::make_shared<Axolotl_Fleet>());
-    // rclcpp::shutdown();
+    rclcpp::init(argc, argv);
+    // rclcpp::spin(std::make_shared<Axolotl_Fleet>);
+    rclcpp::shutdown();
      
     return 0;
 }

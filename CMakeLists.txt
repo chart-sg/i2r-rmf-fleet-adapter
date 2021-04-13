@@ -18,6 +18,12 @@ endif()
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rmf_fleet_adapter REQUIRED)
+# find_package(rmf_task_msgs REQUIRED)
+# find_package(rmf_traffic_ros2 REQUIRED)
+# find_package(rmf_traffic REQUIRED)
+# find_package(rmf_battery REQUIRED)
+# find_package(Eigen3 REQUIRED)
+# find_package(unordered_set)
 
 add_executable(barkin src/main.cpp)
 # target_include_directories(barkin PUBLIC /home/jh/rmf_ws/install/rmf_fleet_adapter/include)
@@ -25,8 +31,15 @@ add_executable(barkin src/main.cpp)
 # Apparently CMake has namespace, so will have to check what the actual name is used in the proect() CMakeLists is. 
 # I.e. find_package(Eigen3) uses Eigen3::Eigen namespace, where in the root folder's CMakeLists uses project(Eigen)
 target_link_libraries(barkin 
+  rclcpp::rclcpp  
   rmf_fleet_adapter::rmf_fleet_adapter
-  rclcpp::rclcpp)
+  # rmf_task_msgs::rmf_task_msgs
+  # rmf_traffic_ros2::rmf_traffic_ros2
+  # rmf_traffic::rmf_traffic
+  # rmf_battery::rmf_battery
+  # Eigen3::Eigen
+  # unordered_set::unordered_set
+  )
 
 # ament_target_dependencies(barkin
 #   rclcpp

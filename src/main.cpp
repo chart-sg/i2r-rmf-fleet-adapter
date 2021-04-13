@@ -1,22 +1,32 @@
 #include <rclcpp/rclcpp.hpp>
 #include <rmf_fleet_adapter/agv/Adapter.hpp>
 
-class Axolotl_Fleet //: public rmf_fleet_adapter::agv::Adapter 
-{
-public:
-    Axolotl_Fleet()
-    {
-        // return 0;
-        // rmf_fleet_adapter::agv::Adapter fleet_adapter;
-        // fleet_adapter::init_and_make("axolotl_fleet");
-    }
-};
+struct Connections : public std::enable_shared_from_this<Connections>
+{};
 
-int main(int argc, char * argv[])
+std::shared_ptr<Connections> make_fleet(
+    const rmf_fleet_adapter::agv::AdapterPtr& adapter)
 {
-    rclcpp::init(argc, argv);
-    // rclcpp::spin(std::make_shared<Axolotl_Fleet>);
-    rclcpp::shutdown();
-     
     return 0;
+}
+
+int main(int argc, char* argv[])
+{
+  rclcpp::init(argc, argv);
+  const auto adapter = rmf_fleet_adapter::agv::Adapter::make("fleet_adapter");
+  if (!adapter)
+    return 1;
+
+  const auto fleet_connections = make_fleet(adapter);
+  if (!fleet_connections)
+    return 1;
+
+  RCLCPP_INFO(adapter->node()->get_logger(), "Starting Fleet Adapter");
+
+  // Start running the adapter and wait until it gets stopped by SIGINT
+  adapter->start().wait();
+
+  RCLCPP_INFO(adapter->node()->get_logger(), "Closing Fleet Adapter");
+
+  rclcpp::shutdown();
 }

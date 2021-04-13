@@ -1,0 +1,42 @@
+-- Found ament_cmake: 0.9.8 (/opt/ros/foxy/share/ament_cmake/cmake)
+-- Using PYTHON_EXECUTABLE: /usr/bin/python3
+-- Found rmf_fleet_adapter: 1.2.0 (/home/jh/rmf_ws/install/rmf_fleet_adapter/share/rmf_fleet_adapter/cmake)
+-- Using all available rosidl_typesupport_c: rosidl_typesupport_fastrtps_c;rosidl_typesupport_introspection_c
+-- Found rosidl_adapter: 1.2.0 (/opt/ros/foxy/share/rosidl_adapter/cmake)
+-- Using all available rosidl_typesupport_cpp: rosidl_typesupport_fastrtps_cpp;rosidl_typesupport_introspection_cpp
+-- Found rmw_implementation_cmake: 1.0.2 (/opt/ros/foxy/share/rmw_implementation_cmake/cmake)
+-- Using RMW implementation 'rmw_cyclonedds_cpp' as default
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/jh/Dev/barkin_mad_ws/src/axoltl/build/axolotl
+[35m[1mScanning dependencies of target barkin[0m
+[ 50%] [32mBuilding CXX object CMakeFiles/barkin.dir/src/main.cpp.o[0m
+[01m[K/home/jh/Dev/barkin_mad_ws/src/axoltl/src/main.cpp:[m[K In function ‘[01m[Kstd::shared_ptr<Connections> make_fleet(const AdapterPtr&)[m[K’:
+[01m[K/home/jh/Dev/barkin_mad_ws/src/axoltl/src/main.cpp:955:66:[m[K [01;35m[Kwarning: [m[K‘[01m[Krmf_fleet_adapter::agv::FleetUpdateHandle& rmf_fleet_adapter::agv::FleetUpdateHandle::accept_delivery_requests(rmf_fleet_adapter::agv::FleetUpdateHandle::AcceptDeliveryRequest)[m[K’ is deprecated: Use accept_task_requests() instead [[01;35m[K-Wdeprecated-declarations[m[K]
+  955 |           [](const rmf_task_msgs::msg::Delivery&){ return true; }[01;35m[K)[m[K;
+      |                                                                  [01;35m[K^[m[K
+In file included from [01m[K/home/jh/rmf_ws/install/rmf_fleet_adapter/include/rmf_fleet_adapter/agv/Adapter.hpp:20[m[K,
+                 from [01m[K/home/jh/Dev/barkin_mad_ws/src/axoltl/src/main.cpp:23[m[K:
+[01m[K/home/jh/rmf_ws/install/rmf_fleet_adapter/include/rmf_fleet_adapter/agv/FleetUpdateHandle.hpp:157:22:[m[K [01;36m[Knote: [m[Kdeclared here
+  157 |   FleetUpdateHandle& [01;36m[Kaccept_delivery_requests[m[K(AcceptDeliveryRequest check);
+      |                      [01;36m[K^~~~~~~~~~~~~~~~~~~~~~~~[m[K
+[100%] [32m[1mLinking CXX executable barkin[0m
+[100%] Built target barkin
+-- Install configuration: ""
+-- Installing: /home/jh/Dev/barkin_mad_ws/src/axoltl/install/axolotl/lib/axolotl/barkin
+-- Set runtime path of "/home/jh/Dev/barkin_mad_ws/src/axoltl/install/axolotl/lib/axolotl/barkin" to ""
+-- Up-to-date: /home/jh/Dev/barkin_mad_ws/src/axoltl/install/axolotl/share/ament_index/resource_index/package_run_dependencies/axolotl
+-- Up-to-date: /home/jh/Dev/barkin_mad_ws/src/axoltl/install/axolotl/share/ament_index/resource_index/parent_prefix_path/axolotl
+-- Up-to-date: /home/jh/Dev/barkin_mad_ws/src/axoltl/install/axolotl/share/axolotl/environment/ament_prefix_path.sh
+-- Installing: /home/jh/Dev/barkin_mad_ws/src/axoltl/install/axolotl/share/axolotl/environment/ament_prefix_path.dsv
+-- Up-to-date: /home/jh/Dev/barkin_mad_ws/src/axoltl/install/axolotl/share/axolotl/environment/path.sh
+-- Installing: /home/jh/Dev/barkin_mad_ws/src/axoltl/install/axolotl/share/axolotl/environment/path.dsv
+-- Up-to-date: /home/jh/Dev/barkin_mad_ws/src/axoltl/install/axolotl/share/axolotl/local_setup.bash
+-- Up-to-date: /home/jh/Dev/barkin_mad_ws/src/axoltl/install/axolotl/share/axolotl/local_setup.sh
+-- Up-to-date: /home/jh/Dev/barkin_mad_ws/src/axoltl/install/axolotl/share/axolotl/local_setup.zsh
+-- Installing: /home/jh/Dev/barkin_mad_ws/src/axoltl/install/axolotl/share/axolotl/local_setup.dsv
+-- Installing: /home/jh/Dev/barkin_mad_ws/src/axoltl/install/axolotl/share/axolotl/package.dsv
+-- Up-to-date: /home/jh/Dev/barkin_mad_ws/src/axoltl/install/axolotl/share/ament_index/resource_index/packages/axolotl
+-- Up-to-date: /home/jh/Dev/barkin_mad_ws/src/axoltl/install/axolotl/share/axolotl/cmake/axolotlConfig.cmake
+-- Up-to-date: /home/jh/Dev/barkin_mad_ws/src/axoltl/install/axolotl/share/axolotl/cmake/axolotlConfig-version.cmake
+-- Up-to-date: /home/jh/Dev/barkin_mad_ws/src/axoltl/install/axolotl/share/axolotl/package.xml

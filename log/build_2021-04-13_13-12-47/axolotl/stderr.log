@@ -1,0 +1,9 @@
+[01m[K/home/jh/Dev/barkin_mad_ws/src/axoltl/src/main.cpp:[m[K In function ‘[01m[Kstd::shared_ptr<Connections> make_fleet(const AdapterPtr&)[m[K’:
+[01m[K/home/jh/Dev/barkin_mad_ws/src/axoltl/src/main.cpp:955:66:[m[K [01;35m[Kwarning: [m[K‘[01m[Krmf_fleet_adapter::agv::FleetUpdateHandle& rmf_fleet_adapter::agv::FleetUpdateHandle::accept_delivery_requests(rmf_fleet_adapter::agv::FleetUpdateHandle::AcceptDeliveryRequest)[m[K’ is deprecated: Use accept_task_requests() instead [[01;35m[K-Wdeprecated-declarations[m[K]
+  955 |           [](const rmf_task_msgs::msg::Delivery&){ return true; }[01;35m[K)[m[K;
+      |                                                                  [01;35m[K^[m[K
+In file included from [01m[K/home/jh/rmf_ws/install/rmf_fleet_adapter/include/rmf_fleet_adapter/agv/Adapter.hpp:20[m[K,
+                 from [01m[K/home/jh/Dev/barkin_mad_ws/src/axoltl/src/main.cpp:23[m[K:
+[01m[K/home/jh/rmf_ws/install/rmf_fleet_adapter/include/rmf_fleet_adapter/agv/FleetUpdateHandle.hpp:157:22:[m[K [01;36m[Knote: [m[Kdeclared here
+  157 |   FleetUpdateHandle& [01;36m[Kaccept_delivery_requests[m[K(AcceptDeliveryRequest check);
+      |                      [01;36m[K^~~~~~~~~~~~~~~~~~~~~~~~[m[K

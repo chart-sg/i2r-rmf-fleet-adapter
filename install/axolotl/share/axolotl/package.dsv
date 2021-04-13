@@ -1,0 +1,8 @@
+source;share/axolotl/hook/cmake_prefix_path.ps1
+source;share/axolotl/hook/cmake_prefix_path.dsv
+source;share/axolotl/hook/cmake_prefix_path.sh
+source;share/axolotl/local_setup.bash
+source;share/axolotl/local_setup.dsv
+source;share/axolotl/local_setup.ps1
+source;share/axolotl/local_setup.sh
+source;share/axolotl/local_setup.zsh

@@ -1,0 +1,9 @@
+[35m[1mScanning dependencies of target barkin[0m
+[ 50%] [32mBuilding CXX object CMakeFiles/barkin.dir/src/main.cpp.o[0m
+[01m[K/home/jh/Dev/barkin_mad_ws/src/axoltl/src/main.cpp:19:10:[m[K [01;31m[Kfatal error: [m[K../include/ParseArgs.hpp: No such file or directory
+   19 | #include [01;31m[K"../include/ParseArgs.hpp"[m[K
+      |          [01;31m[K^~~~~~~~~~~~~~~~~~~~~~~~~~[m[K
+compilation terminated.
+make[2]: *** [CMakeFiles/barkin.dir/build.make:63: CMakeFiles/barkin.dir/src/main.cpp.o] Error 1
+make[1]: *** [CMakeFiles/Makefile2:78: CMakeFiles/barkin.dir/all] Error 2
+make: *** [Makefile:141: all] Error 2

@@ -1,0 +1,64 @@
+-- The C compiler identification is GNU 9.3.0
+-- The CXX compiler identification is GNU 9.3.0
+-- Check for working C compiler: /usr/bin/cc
+-- Check for working C compiler: /usr/bin/cc -- works
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Check for working CXX compiler: /usr/bin/c++
+-- Check for working CXX compiler: /usr/bin/c++ -- works
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Found ament_cmake: 0.9.8 (/opt/ros/foxy/share/ament_cmake/cmake)
+-- Found PythonInterp: /usr/bin/python3 (found suitable version "3.8.5", minimum required is "3") 
+-- Using PYTHON_EXECUTABLE: /usr/bin/python3
+-- Found rclcpp: 2.3.0 (/opt/ros/foxy/share/rclcpp/cmake)
+-- Using all available rosidl_typesupport_c: rosidl_typesupport_fastrtps_c;rosidl_typesupport_introspection_c
+-- Found rosidl_adapter: 1.2.0 (/opt/ros/foxy/share/rosidl_adapter/cmake)
+-- Found OpenSSL: /usr/lib/x86_64-linux-gnu/libcrypto.so (found version "1.1.1f")  
+-- Found FastRTPS: /opt/ros/foxy/include  
+-- Using all available rosidl_typesupport_cpp: rosidl_typesupport_fastrtps_cpp;rosidl_typesupport_introspection_cpp
+-- Found rmw_implementation_cmake: 1.0.2 (/opt/ros/foxy/share/rmw_implementation_cmake/cmake)
+-- Using RMW implementation 'rmw_cyclonedds_cpp' as default
+-- Looking for pthread.h
+-- Looking for pthread.h - found
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Failed
+-- Looking for pthread_create in pthreads
+-- Looking for pthread_create in pthreads - not found
+-- Looking for pthread_create in pthread
+-- Looking for pthread_create in pthread - found
+-- Found Threads: TRUE  
+-- Found rmf_fleet_adapter: 1.2.0 (/home/jh/rmf_ws/install/rmf_fleet_adapter/share/rmf_fleet_adapter/cmake)
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/jh/Dev/barkin_mad_ws/src/axoltl/build/axolotl
+[35m[1mScanning dependencies of target barkin[0m
+[ 50%] [32mBuilding CXX object CMakeFiles/barkin.dir/src/main.cpp.o[0m
+[01m[K/home/jh/Dev/barkin_mad_ws/src/axoltl/src/main.cpp:[m[K In function ‘[01m[Kstd::shared_ptr<Connections> make_fleet(const AdapterPtr&)[m[K’:
+[01m[K/home/jh/Dev/barkin_mad_ws/src/axoltl/src/main.cpp:12:47:[m[K [01;35m[Kwarning: [m[Kunused parameter ‘[01m[Kadapter[m[K’ [[01;35m[K-Wunused-parameter[m[K]
+   12 |     [01;35m[Kconst rmf_fleet_adapter::agv::AdapterPtr& adapter[m[K)
+      |     [01;35m[K~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~[m[K
+[100%] [32m[1mLinking CXX executable barkin[0m
+[100%] Built target barkin
+-- Install configuration: ""
+-- Installing: /home/jh/Dev/barkin_mad_ws/src/axoltl/install/axolotl/lib/axolotl/barkin
+-- Set runtime path of "/home/jh/Dev/barkin_mad_ws/src/axoltl/install/axolotl/lib/axolotl/barkin" to ""
+-- Installing: /home/jh/Dev/barkin_mad_ws/src/axoltl/install/axolotl/share/ament_index/resource_index/package_run_dependencies/axolotl
+-- Installing: /home/jh/Dev/barkin_mad_ws/src/axoltl/install/axolotl/share/ament_index/resource_index/parent_prefix_path/axolotl
+-- Installing: /home/jh/Dev/barkin_mad_ws/src/axoltl/install/axolotl/share/axolotl/environment/ament_prefix_path.sh
+-- Installing: /home/jh/Dev/barkin_mad_ws/src/axoltl/install/axolotl/share/axolotl/environment/ament_prefix_path.dsv
+-- Installing: /home/jh/Dev/barkin_mad_ws/src/axoltl/install/axolotl/share/axolotl/environment/path.sh
+-- Installing: /home/jh/Dev/barkin_mad_ws/src/axoltl/install/axolotl/share/axolotl/environment/path.dsv
+-- Installing: /home/jh/Dev/barkin_mad_ws/src/axoltl/install/axolotl/share/axolotl/local_setup.bash
+-- Installing: /home/jh/Dev/barkin_mad_ws/src/axoltl/install/axolotl/share/axolotl/local_setup.sh
+-- Installing: /home/jh/Dev/barkin_mad_ws/src/axoltl/install/axolotl/share/axolotl/local_setup.zsh
+-- Installing: /home/jh/Dev/barkin_mad_ws/src/axoltl/install/axolotl/share/axolotl/local_setup.dsv
+-- Installing: /home/jh/Dev/barkin_mad_ws/src/axoltl/install/axolotl/share/axolotl/package.dsv
+-- Installing: /home/jh/Dev/barkin_mad_ws/src/axoltl/install/axolotl/share/ament_index/resource_index/packages/axolotl
+-- Installing: /home/jh/Dev/barkin_mad_ws/src/axoltl/install/axolotl/share/axolotl/cmake/axolotlConfig.cmake
+-- Installing: /home/jh/Dev/barkin_mad_ws/src/axoltl/install/axolotl/share/axolotl/cmake/axolotlConfig-version.cmake
+-- Installing: /home/jh/Dev/barkin_mad_ws/src/axoltl/install/axolotl/share/axolotl/package.xml

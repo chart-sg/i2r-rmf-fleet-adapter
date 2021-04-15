@@ -37,4 +37,10 @@ target_link_libraries(${CMAKE_PROJECT_NAME}
 install(TARGETS
   ${CMAKE_PROJECT_NAME}
   DESTINATION lib/${PROJECT_NAME})
+
+install(
+    DIRECTORY launch
+    DESTINATION share/${PROJECT_NAME}
+  )
+  
 ament_package()

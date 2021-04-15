@@ -14,7 +14,7 @@
  * limitations under the License.
  *
 */
-
+#define DEBUG true
 // Internal implementation-specific headers
 #include "ParseArgs.hpp"
 #include "load_param.hpp"
@@ -1038,14 +1038,16 @@ std::shared_ptr<Connections> make_fleet(
 int main(int argc, char* argv[])
 {
   rclcpp::init(argc, argv);
+  if (DEBUG){std::cout<<"Broke here 0"<<std::endl;};
   const auto adapter = rmf_fleet_adapter::agv::Adapter::make("fleet_adapter");
+  if (DEBUG){std::cout<<"Broke here 0.5"<<std::endl;};
   if (!adapter)
     return 1;
-
+  if (DEBUG){std::cout<<"Broke here 1"<<std::endl;};
   const auto fleet_connections = make_fleet(adapter);
   if (!fleet_connections)
     return 1;
-
+  if (DEBUG){std::cout<<"Broke here 2"<<std::endl;};
   RCLCPP_INFO(adapter->node()->get_logger(), "Starting Fleet Adapter");
 
   // Start running the adapter and wait until it gets stopped by SIGINT

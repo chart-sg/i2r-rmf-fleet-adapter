@@ -9,3 +9,6 @@ https://github.com/open-rmf/rmf
 
 ### To Do
 - Link it with dolly to try it out
+- Add WSS connection to MRCCC when adapter initialises
+- Update RobotCommandHandle
+- Include Json_to_text lib

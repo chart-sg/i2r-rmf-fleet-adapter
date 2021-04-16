@@ -1,6 +1,0 @@
-CMake Error at CMakeLists.txt:29:
-  Parse error.  Expected a command name, got unquoted argument with text
-  "rmf_fleet_adapter::rmf_fleet_adapter".
-
-
-make: *** [Makefile:266: cmake_check_build_system] Error 1

@@ -11,22 +11,23 @@ def generate_launch_description():
             emulate_tty=True,
             parameters=[
                 {"fleet_name": "dolly"},
-                ### Vehicle traits
-                # {"linear_velocity": 0.0},
-                # {"angular_velocity": 0.0},
-                # {"linear_acceleration": 0.0},
-                # {"angular_acceleration": 0.0},
-                # {"footprint_radius": 1.0},
-                # {"vicinity_radius": 1.0},
-                # {"reversible": True},
-                # ###############################
-                # {"nav_graph_file": ""},
-                # {"perform_loop": ""},
-                # {"perform_deliveries": ""},
-                # {"perform_cleaning": ""},
-                # {"disable_delay_threshold": ""},
-                # {"experimental_lift_watchdog_service": \
-                #     ""}
-                ],
+                ### Vehicle traits ###
+                {"linear_velocity": 0.0},
+                {"angular_velocity": 0.0},
+                {"linear_acceleration": 0.0},
+                {"angular_acceleration": 0.0},
+                {"footprint_radius": 1.0},
+                {"vicinity_radius": 1.0},
+                {"reversible": True},
+                ###############################
+                {"nav_graph_file": \
+                    "/home/jh/rmf_ws/install/rmf_demos_maps/share/rmf_demos_maps/maps/office/nav_graphs/0.yaml"},
+                {"perform_loop": False},
+                {"perform_deliveries": False},
+                {"perform_cleaning": False},
+                {"disable_delay_threshold": False},
+                {"experimental_lift_watchdog_service": \
+                    ""}
+                ]
             )
     ])

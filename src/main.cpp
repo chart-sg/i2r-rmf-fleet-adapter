@@ -805,8 +805,10 @@ std::shared_ptr<Connections> make_fleet(
 
   // We disable fleet state publishing for this fleet adapter because we expect
   // the fleet drivers to publish these messages.
-  connections->fleet->fleet_state_publish_period(std::nullopt);
-
+  connections->fleet->fleet_state_publish_period(); 
+  // Defaulting setting to default because in this case, we want fleet_state to be published
+  // For visualisation in RVIZ
+  
   connections->closed_lanes_pub =
     adapter->node()->create_publisher<rmf_fleet_msgs::msg::ClosedLanes>(
       rmf_fleet_adapter::ClosedLaneTopicName,
@@ -987,6 +989,9 @@ std::shared_ptr<Connections> make_fleet(
   connections->mode_request_pub = node->create_publisher<
       rmf_fleet_msgs::msg::ModeRequest>(
         rmf_fleet_adapter::ModeRequestTopicName, rclcpp::SystemDefaultsQoS());
+
+  // MRCCC -> Fleet state publisher
+  // connections->fleet_state_pub = node->create_publisher<rmf_fleet_msgs::msg::FleetState>("", rclcpp::SystemDefaultsQoS(), someFunc())
 
   connections->fleet_state_sub = node->create_subscription<
       rmf_fleet_msgs::msg::FleetState>(

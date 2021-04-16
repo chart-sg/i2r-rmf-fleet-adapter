@@ -1,4 +1,0 @@
-[01m[K/home/jh/Dev/barkin_mad_ws/src/axoltl/src/main.cpp:[m[K In function ‘[01m[Kstd::shared_ptr<Connections> make_fleet(const AdapterPtr&)[m[K’:
-[01m[K/home/jh/Dev/barkin_mad_ws/src/axoltl/src/main.cpp:12:47:[m[K [01;35m[Kwarning: [m[Kunused parameter ‘[01m[Kadapter[m[K’ [[01;35m[K-Wunused-parameter[m[K]
-   12 |     [01;35m[Kconst rmf_fleet_adapter::agv::AdapterPtr& adapter[m[K)
-      |     [01;35m[K~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~[m[K

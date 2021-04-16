@@ -1,5 +1,0 @@
-CMake Error at CMakeLists.txt:37 (install):
-  install TARGETS given target "barkin" which does not exist.
-
-
-make: *** [Makefile:266: cmake_check_build_system] Error 1

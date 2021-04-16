@@ -805,7 +805,7 @@ std::shared_ptr<Connections> make_fleet(
 
   // We disable fleet state publishing for this fleet adapter because we expect
   // the fleet drivers to publish these messages.
-  connections->fleet->fleet_state_publish_period(); 
+  connections->fleet->fleet_state_publish_period((rmf_traffic::Duration)1); 
   // Defaulting setting to default because in this case, we want fleet_state to be published
   // For visualisation in RVIZ
   

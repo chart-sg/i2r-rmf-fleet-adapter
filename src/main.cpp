@@ -56,6 +56,15 @@
 #include <Eigen/Geometry>
 #include <unordered_set>
 
+
+// kj: to do: put into ros launch file
+// coordinate transformtion
+double i2r_translation_x = 0.0;
+double i2r_translation_y = 0.0;
+double i2r_rotation = 0.0;
+double i2r_scale = 0.0;
+
+
 //==============================================================================
 rmf_fleet_adapter::agv::RobotUpdateHandle::Unstable::Decision
 convert_decision(uint32_t decision)
@@ -223,7 +232,91 @@ public:
 
     _path_requested_time = std::chrono::steady_clock::now();
     _path_request_pub->publish(_current_path_request);
+  
+
+    //kj
+    //1. transform to i2r robot coordinate
+    //2. send the transformed_wp to LF_mission_generator--> wss_mission_sender, if mission done, need to trigger path_finished_callback
+    //RCLCPP_INFO(_node->get_logger(),"i am in path request pub");
+
   }
+
+  //kj transformation i2r-->rmf
+  void transform_i2r_to_rmf(
+    const rmf_fleet_msgs::msg::Location& _fleet_frame_location,
+    rmf_fleet_msgs::msg::Location& _rmf_frame_location) const
+  {
+    const Eigen::Vector2d translated =
+        Eigen::Vector2d(_fleet_frame_location.x, _fleet_frame_location.y)
+        - Eigen::Vector2d(
+            i2r_translation_x, i2r_translation_y);
+
+    // RCLCPP_INFO(
+    //     get_logger(), "    fleet->rmf translated: (%.3f, %.3f)",
+    //     translated[0], translated[1]);
+
+    const Eigen::Vector2d rotated =
+        Eigen::Rotation2D<double>(-i2r_rotation) * translated;
+
+    // RCLCPP_INFO(
+    //     get_logger(), "    fleet->rmf rotated: (%.3f, %.3f)",
+    //     rotated[0], rotated[1]);
+
+    const Eigen::Vector2d scaled = 1.0 / i2r_scale * rotated;
+
+    // RCLCPP_INFO(
+    //     get_logger(), "    fleet->rmf scaled: (%.3f, %.3f)",
+    //     scaled[0], scaled[1]);
+        
+    _rmf_frame_location.x = scaled[0];
+    _rmf_frame_location.y = scaled[1];
+    _rmf_frame_location.yaw = 
+        _fleet_frame_location.yaw - i2r_rotation;
+
+    _rmf_frame_location.t = _fleet_frame_location.t;
+    _rmf_frame_location.level_name = _fleet_frame_location.level_name;
+  }
+  
+  
+  //kj transformation rmf-->i2r
+  void transform_rmf_to_i2r(
+      const rmf_fleet_msgs::msg::Location& _rmf_frame_location,
+      rmf_fleet_msgs::msg::Location& _fleet_frame_location) const
+  {
+    const Eigen::Vector2d scaled = 
+        i2r_scale * 
+        Eigen::Vector2d(_rmf_frame_location.x, _rmf_frame_location.y);
+
+    // RCLCPP_INFO(
+    //     get_logger(), "    rmf->fleet scaled: (%.3f, %.3f)",
+    //     scaled[0], scaled[1]);
+
+    const Eigen::Vector2d rotated =
+        Eigen::Rotation2D<double>(i2r_rotation) * scaled;
+    
+    // RCLCPP_INFO(
+    //     get_logger(), "    rmf->fleet rotated: (%.3f, %.3f)",
+    //     rotated[0], rotated[1]);
+
+    const Eigen::Vector2d translated =
+        rotated + 
+        Eigen::Vector2d(
+            i2r_translation_x, i2r_translation_y);
+
+    // RCLCPP_INFO(
+    //     get_logger(), "    rmf->fleet translated: (%.3f, %.3f)",
+    //     translated[0], translated[1]);
+
+    _fleet_frame_location.x = translated[0];
+    _fleet_frame_location.y = translated[1];
+    _fleet_frame_location.yaw = 
+        _rmf_frame_location.yaw + i2r_rotation;
+
+    _fleet_frame_location.t = _rmf_frame_location.t;
+    _fleet_frame_location.level_name = _rmf_frame_location.level_name;
+  }
+
+
 
   void stop() final
   {

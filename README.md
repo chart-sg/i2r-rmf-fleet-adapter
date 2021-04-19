@@ -23,6 +23,13 @@ source axolotl_server
 cd ~/YOUR_WORKSPACE/install/axolotl/lib/axolotl
 source axolotl_client
 ```
+Type (port 9002 is hardcoded for now):
+```
+connect http://localhost:9002
+status 0
+send 0 Hello World!
+```
+You should see the printout on the server saying 'Hello World!'
 ### The example's README is at:
 ```
 cd ~/axolotl/src/axolotl/include/websocketpp/tutorials/utility_client 

@@ -16,11 +16,11 @@ endif()
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
+find_package(Threads REQUIRED)
 # find_package(rclcpp REQUIRED)
 find_package(rmf_fleet_adapter REQUIRED)
 
 add_executable(${CMAKE_PROJECT_NAME} src/main.cpp)
-# target_include_directories(barkin PUBLIC /home/jh/rmf_ws/install/rmf_fleet_adapter/include)
 
 # Apparently CMake has namespace, so will have to check what the actual name is used in the proect() CMakeLists is. 
 # I.e. find_package(Eigen3) uses Eigen3::Eigen namespace, where in the root folder's CMakeLists uses project(Eigen)
@@ -29,10 +29,24 @@ target_link_libraries(${CMAKE_PROJECT_NAME}
   rmf_fleet_adapter::rmf_fleet_adapter
   )
 
-# ament_target_dependencies(barkin
-#   rclcpp
-#   rmf_fleet_adapter
-# )
+add_executable(${CMAKE_PROJECT_NAME}_client src/client.cpp)
+add_executable(${CMAKE_PROJECT_NAME}_server src/server.cpp)
+  
+target_include_directories(${CMAKE_PROJECT_NAME}_client 
+  PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include/websocketpp)
+target_include_directories(${CMAKE_PROJECT_NAME}_server 
+  PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include/websocketpp
+  PUBLIC /usr/include/asio
+  )
+
+target_link_libraries(${CMAKE_PROJECT_NAME}_client PUBLIC Threads::Threads) #Asio::Asio)
+target_link_libraries(${CMAKE_PROJECT_NAME}_server PUBLIC Threads::Threads) #Asio::Asio)
+
+# Socks
+install(TARGETS
+  ${CMAKE_PROJECT_NAME}_client
+  ${CMAKE_PROJECT_NAME}_server
+  DESTINATION lib/${PROJECT_NAME})
 
 install(TARGETS
   ${CMAKE_PROJECT_NAME}

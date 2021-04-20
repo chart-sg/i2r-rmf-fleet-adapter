@@ -39,8 +39,8 @@
   <arg name="experimental_lift_watchdog_service" default="" description="(Experimental) The name of a service to check whether a robot can enter a lift"/>
 
 
-  <node pkg="axolotl"
-        exec="axolotl"
+  <node pkg="rmf_fleet_adapter"
+        exec="$(var control_type)"
         name="$(var fleet_name)_fleet_adapter"
         output="both">
 

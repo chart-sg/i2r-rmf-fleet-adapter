@@ -48,6 +48,7 @@ install(TARGETS
   ${CMAKE_PROJECT_NAME}_server
   DESTINATION lib/${PROJECT_NAME})
 
+  # main.cpp
 install(TARGETS
   ${CMAKE_PROJECT_NAME}
   DESTINATION lib/${PROJECT_NAME})

@@ -6,6 +6,10 @@ Trying out rmf_fleet_adapter new C++ API.
 ## Installation
 Follow the installation for the rmf_fleet_adapter here:
 https://github.com/open-rmf/rmf
+## Environment
+- ros2 Foxy
+- Ubuntu 20.04
+
 ## Dependencies
 ```
 sudo apt-get install -y libasio-dev
@@ -41,4 +45,4 @@ cd ~/axolotl/src/axolotl/include/websocketpp/tutorials/utility_client/utility_se
 - Link it with dolly to try it out
 - Add WSS connection to MRCCC when adapter initialises
 - Update RobotCommandHandle
-- Include Json_to_text lib
+- Adding rainbows

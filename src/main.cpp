@@ -59,7 +59,7 @@
 
 // kj: to do: put into ros launch file
 // coordinate transformtion
-double i2r_translation_x = 0.0;
+double i2r_translation_x = 1.0;
 double i2r_translation_y = 0.0;
 double i2r_rotation = 0.0;
 double i2r_scale = 0.0;
@@ -209,10 +209,16 @@ public:
 
     _current_path_request.task_id = std::to_string(++_current_task_id);
     _current_path_request.path.clear();
+
+    std::vector<rmf_fleet_msgs::msg::Location> to_i2r_waypoint; //kj
+
     for (const auto& wp : waypoints)
     {
       rmf_fleet_msgs::msg::Location location;
       const Eigen::Vector3d p = wp.position();
+
+      rmf_fleet_msgs::msg::Location _to_i2r_waypoint; //kj
+
       location.t = rmf_traffic_ros2::convert(wp.time());
       location.x = p.x();
       location.y = p.y();
@@ -228,18 +234,33 @@ public:
       }
 
       _current_path_request.path.emplace_back(std::move(location));
+
+      transform_rmf_to_i2r(location, _to_i2r_waypoint); //kj
+      to_i2r_waypoint.push_back(_to_i2r_waypoint); //kj
+      
+      RCLCPP_INFO(_node->get_logger(), "**!!!---- original location_waypoint: (%.3f, %.3f, %.3f)",
+       location.x, location.y,location.yaw) ;
     }
 
     _path_requested_time = std::chrono::steady_clock::now();
     _path_request_pub->publish(_current_path_request);
   
-
     //kj
-    //1. transform to i2r robot coordinate
+    //1. transform to i2r robot coordinate --> [to_i2r_waypoint]
     //2. send the transformed_wp to LF_mission_generator--> wss_mission_sender, if mission done, need to trigger path_finished_callback
     //RCLCPP_INFO(_node->get_logger(),"i am in path request pub");
 
+    //print out to_i2r_waypoint
+    for (int i=0; i<to_i2r_waypoint.size();i++)
+    {
+      RCLCPP_INFO(_node->get_logger(), "**---- to_i2r_waypoint: (%.3f, %.3f, %.3f)",
+       to_i2r_waypoint.at(i).x, to_i2r_waypoint.at(i).y,to_i2r_waypoint.at(i).yaw) ;
+    }
+    
+
+
   }
+
 
   //kj transformation i2r-->rmf
   void transform_i2r_to_rmf(

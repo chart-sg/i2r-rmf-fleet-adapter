@@ -69,6 +69,9 @@
       <!-- Battery level at which the robot ceases to operate -->
       <arg name="recharge_threshold" value="0.1"/>
 
+      <!-- Map coordinate transformation (x,y,rotation,scale) -->
+      <arg name="map_coordinate_transformation" value="[1.0, 0.0, 0.0, 1.0]"/>
+
     </include>
   </group>
 </launch>

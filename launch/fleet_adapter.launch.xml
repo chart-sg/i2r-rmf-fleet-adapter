@@ -37,10 +37,10 @@
   <arg name="drain_battery" default="false" description="Whether battery drain should be considered while assigning tasks to vechiles in this fleet"/>
   <arg name="recharge_threshold" default="0.2" description="The fraction of total battery capacity below which the robot must return to its charger"/>
   <arg name="experimental_lift_watchdog_service" default="" description="(Experimental) The name of a service to check whether a robot can enter a lift"/>
+  <arg name="map_coordinate_transformation" default="[0.0, 0.0, 0.0, 1.0]" description="Coordinate transformation (translation x, translation y, rotation, scale)"/>
 
-
-  <node pkg="rmf_fleet_adapter"
-        exec="$(var control_type)"
+  <node pkg="axolotl"
+        exec="axolotl"
         name="$(var fleet_name)_fleet_adapter"
         output="both">
 
@@ -81,6 +81,9 @@
     <param name="experimental_lift_watchdog_service" value="$(var experimental_lift_watchdog_service)"/>
 
     <param name="use_sim_time" value="$(var use_sim_time)"/>
+
+    <param name="map_coordinate_transformation" value="$(var map_coordinate_transformation)"/>
+
   </node>
 
 </launch>

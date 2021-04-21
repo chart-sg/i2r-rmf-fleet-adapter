@@ -70,7 +70,8 @@
       <arg name="recharge_threshold" value="0.1"/>
 
       <!-- Map coordinate transformation (x,y,rotation,scale) -->
-      <arg name="map_coordinate_transformation" value="[1.0, 0.0, 0.0, 1.0]"/>
+      <arg name="map_coordinate_transformation" value="[755.631, 454.634, 0.0, 2.944]"/>
+      
 
     </include>
   </group>

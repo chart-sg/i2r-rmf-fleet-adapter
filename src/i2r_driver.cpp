@@ -1,7 +1,5 @@
 
 #include "i2r_driver.hpp"
-#include "json_txt_gen.cpp"
-
 
 
 namespace i2r_driver {

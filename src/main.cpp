@@ -15,6 +15,10 @@
  *
 */
 #define DEBUG true
+
+#include "json_txt_gen.cpp"
+#include "i2r_driver.hpp"
+
 // Internal implementation-specific headers
 #include "ParseArgs.hpp"
 #include "load_param.hpp"
@@ -150,6 +154,8 @@ class FleetDriverRobotCommandHandle
 {
 public:
 
+  //Json_mission i2r_mission_gen;
+  
   using PathRequestPub =
       rclcpp::Publisher<rmf_fleet_msgs::msg::PathRequest>::SharedPtr;
 
@@ -209,7 +215,7 @@ public:
       rmf_fleet_msgs::msg::Location location;
       const Eigen::Vector3d p = wp.position();
 
-      //rmf_fleet_msgs::msg::Location _to_i2r_waypoint; //kj
+      rmf_fleet_msgs::msg::Location _to_i2r_waypoint; //kj
 
       location.t = rmf_traffic_ros2::convert(wp.time());
       location.x = p.x();
@@ -228,6 +234,9 @@ public:
       _current_path_request.path.emplace_back(std::move(location));
 
       //transform_rmf_to_i2r(location, _to_i2r_waypoint); //kj, dont transform here
+      
+      //i2r_driver::transform_rmf_to_i2r(_node, location, _to_i2r_waypoint); 
+      
       //to_i2r_waypoint.push_back(_to_i2r_waypoint); //kj, dont transform here
       to_i2r_waypoint.push_back(location); //kj
       
@@ -235,92 +244,32 @@ public:
 
     _path_requested_time = std::chrono::steady_clock::now();
     _path_request_pub->publish(_current_path_request);
-  
+    
     //kj
     //1. transform to i2r robot coordinate --> [to_i2r_waypoint]
     //2. send the transformed_wp to LF_mission_generator--> wss_mission_sender, if mission done, need to trigger path_finished_callback
     //RCLCPP_INFO(_node->get_logger(),"i am in path request pub");
+    //i2r_mission_gen.line_following(1);
 
-  }
 
+    //example of implementing i2r_driver func
+    /*
+    i2r_driver::I2RPathInfo i2rpath;
+    i2rpath.task_id = _current_path_request.task_id;
+    i2rpath.to_i2r_waypoint = to_i2r_waypoint;
 
-  //kj transformation i2r-->rmf
-  /*
-  void transform_i2r_to_rmf(
-    const rmf_fleet_msgs::msg::Location& _fleet_frame_location,
-    rmf_fleet_msgs::msg::Location& _rmf_frame_location) const
-  {
-    const Eigen::Vector2d translated =
-        Eigen::Vector2d(_fleet_frame_location.x, _fleet_frame_location.y)
-        - Eigen::Vector2d(
-            map_coordinate_transformation.at(0), map_coordinate_transformation.at(1));
-
-    // RCLCPP_INFO(
-    //     get_logger(), "    fleet->rmf translated: (%.3f, %.3f)",
-    //     translated[0], translated[1]);
-
-    const Eigen::Vector2d rotated =
-        Eigen::Rotation2D<double>(-map_coordinate_transformation.at(2)) * translated;
-
-    // RCLCPP_INFO(
-    //     get_logger(), "    fleet->rmf rotated: (%.3f, %.3f)",
-    //     rotated[0], rotated[1]);
-
-    const Eigen::Vector2d scaled = 1.0 / map_coordinate_transformation.at(3) * rotated;
-
-    // RCLCPP_INFO(
-    //     get_logger(), "    fleet->rmf scaled: (%.3f, %.3f)",
-    //     scaled[0], scaled[1]);
-        
-    _rmf_frame_location.x = scaled[0];
-    _rmf_frame_location.y = scaled[1];
-    _rmf_frame_location.yaw = 
-        _fleet_frame_location.yaw - map_coordinate_transformation.at(2);
-
-    _rmf_frame_location.t = _fleet_frame_location.t;
-    _rmf_frame_location.level_name = _fleet_frame_location.level_name;
-  }
-  */
-  
-  //kj transformation rmf-->i2r
-  /*
-  void transform_rmf_to_i2r(
-      const rmf_fleet_msgs::msg::Location& _rmf_frame_location,
-      rmf_fleet_msgs::msg::Location& _fleet_frame_location) const
-  {
-    const Eigen::Vector2d scaled = 
-        map_coordinate_transformation.at(3) * 
-        Eigen::Vector2d(_rmf_frame_location.x, _rmf_frame_location.y);
-
-    // RCLCPP_INFO(
-    //     get_logger(), "    rmf->fleet scaled: (%.3f, %.3f)",
-    //     scaled[0], scaled[1]);
-
-    const Eigen::Vector2d rotated =
-        Eigen::Rotation2D<double>(map_coordinate_transformation.at(2)) * scaled;
+    i2r_driver::send_i2r_docking_mission(_node, _current_path_request.task_id);
+    i2r_driver::send_i2r_line_following_mission(_node, i2rpath);
     
-    // RCLCPP_INFO(
-    //     get_logger(), "    rmf->fleet rotated: (%.3f, %.3f)",
-    //     rotated[0], rotated[1]);
+    tf2::Quaternion quat_tf;
+    quat_tf.setRPY(0.0, 0.0, 0.5);
+    quat_tf.normalize();
+    double yawyaw = i2r_driver::get_yaw_from_quat(quat_tf);
+    RCLCPP_INFO(_node->get_logger(),"yawyaw:(%.3f)", yawyaw);
 
-    const Eigen::Vector2d translated =
-        rotated + 
-        Eigen::Vector2d(
-            map_coordinate_transformation.at(0), map_coordinate_transformation.at(1));
-
-    // RCLCPP_INFO(
-    //     get_logger(), "    rmf->fleet translated: (%.3f, %.3f)",
-    //     translated[0], translated[1]);
-
-    _fleet_frame_location.x = translated[0];
-    _fleet_frame_location.y = translated[1];
-    _fleet_frame_location.yaw = 
-        _rmf_frame_location.yaw + map_coordinate_transformation.at(2);
-
-    _fleet_frame_location.t = _rmf_frame_location.t;
-    _fleet_frame_location.level_name = _rmf_frame_location.level_name;
+    tf2::Quaternion quat = i2r_driver::get_quat_from_yaw(0.5);
+    */
   }
-  */
 
 
   void stop() final
@@ -1161,6 +1110,8 @@ std::shared_ptr<Connections> make_fleet(
 //==============================================================================
 int main(int argc, char* argv[])
 {
+  
+
   rclcpp::init(argc, argv);
   if (DEBUG){std::cout<<"Broke here 0"<<std::endl;};
   const auto adapter = rmf_fleet_adapter::agv::Adapter::make("fleet_adapter");

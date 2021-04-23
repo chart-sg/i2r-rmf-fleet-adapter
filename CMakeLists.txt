@@ -20,7 +20,7 @@ find_package(Threads REQUIRED)
 # find_package(rclcpp REQUIRED)
 find_package(rmf_fleet_adapter REQUIRED)
 
-add_executable(${CMAKE_PROJECT_NAME} src/main.cpp)
+add_executable(${CMAKE_PROJECT_NAME} src/main.cpp src/i2r_driver.cpp)
 
 # Apparently CMake has namespace, so will have to check what the actual name is used in the proect() CMakeLists is. 
 # I.e. find_package(Eigen3) uses Eigen3::Eigen namespace, where in the root folder's CMakeLists uses project(Eigen)

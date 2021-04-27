@@ -45,4 +45,3 @@ cd ~/axolotl/src/axolotl/include/websocketpp/tutorials/utility_client/utility_se
 - Link it with dolly to try it out
 - Add WSS connection to MRCCC when adapter initialises
 - Update RobotCommandHandle
-- Adding rainbows

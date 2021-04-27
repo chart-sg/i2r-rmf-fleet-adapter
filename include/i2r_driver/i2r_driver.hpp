@@ -1,7 +1,7 @@
 
 #include <rmf_fleet_msgs/msg/path_request.hpp>
 #include <Eigen/Geometry>
-#include <geometry_msgs/Quaternion.h>
+#include <geometry_msgs/msg/quaternion.hpp>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 #include <tf2/LinearMath/Quaternion.h>
 #include "rclcpp/rclcpp.hpp"

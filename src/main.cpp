@@ -16,12 +16,12 @@
 */
 #define DEBUG true
 
-#include "json_txt_gen.cpp"
-#include "i2r_driver.hpp"
+// #include "json_txt_gen.cpp"
+#include "i2r_driver/i2r_driver.hpp"
 
 // Internal implementation-specific headers
-#include "ParseArgs.hpp"
-#include "load_param.hpp"
+#include "rmf_fleet_adapter/ParseArgs.hpp"
+#include "rmf_fleet_adapter/load_param.hpp"
 
 // Public rmf_fleet_adapter API headers
 #include <rmf_fleet_adapter/agv/Adapter.hpp>
@@ -47,7 +47,7 @@
 
 // Utility functions for estimating where a robot is on the graph based on
 // the information provided by fleet drivers.
-#include "estimation.hpp"
+#include "rmf_fleet_adapter/estimation.hpp"
 
 // Public rmf_traffic API headers
 #include <rmf_traffic/agv/Interpolate.hpp>

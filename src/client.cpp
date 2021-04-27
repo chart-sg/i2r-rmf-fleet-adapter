@@ -28,7 +28,9 @@
 // Additional related material can be found in the tutorials/utility_client
 // directory of the WebSocket++ repository.
 
-#include <websocketpp/config/asio_no_tls_client.hpp>
+// #include <websocketpp/config/asio_no_tls_client.hpp>
+#include <websocketpp/config/asio_client.hpp>
+
 #include <websocketpp/client.hpp>
 
 #include <websocketpp/common/thread.hpp>
@@ -40,11 +42,12 @@
 #include <string>
 #include <sstream>
 
-typedef websocketpp::client<websocketpp::config::asio_client> client;
+typedef websocketpp::client<websocketpp::config::asio_tls_client> client;
 
 class connection_metadata {
 public:
     typedef websocketpp::lib::shared_ptr<connection_metadata> ptr;
+    typedef std::shared_ptr<boost::asio::ssl::context> context_ptr;
 
     connection_metadata(int id, websocketpp::connection_hdl hdl, std::string uri)
       : m_id(id)
@@ -53,6 +56,20 @@ public:
       , m_uri(uri)
       , m_server("N/A")
     {}
+
+    static context_ptr on_tls_init(websocketpp::connection_hdl) {
+        context_ptr ctx = std::make_shared<boost::asio::ssl::context>(boost::asio::ssl::context::sslv23);
+
+        try {
+            ctx->set_options(boost::asio::ssl::context::default_workarounds |
+                            boost::asio::ssl::context::no_sslv2 |
+                            boost::asio::ssl::context::no_sslv3 |
+                            boost::asio::ssl::context::single_dh_use);
+        } catch (std::exception& e) {
+            std::cout <<"Error in context pointer: "<< e.what() << std::endl;
+        }
+        return ctx;
+    }
 
     void on_open(client * c, websocketpp::connection_hdl hdl) {
         m_status = "Open";
@@ -121,9 +138,9 @@ std::ostream & operator<< (std::ostream & out, connection_metadata const & data)
         << "> Error/close reason: " << (data.m_error_reason.empty() ? "N/A" : data.m_error_reason) << "\n";
     out << "> Messages Processed: (" << data.m_messages.size() << ") \n";
 
-    std::vector<std::string>::const_iterator it;
-    for (it = data.m_messages.begin(); it != data.m_messages.end(); ++it) {
-        out << *it << "\n";
+    // std::vector<std::string>::const_iterator it;
+    for (const std::string& i : data.m_messages) {
+        out << i << "\n";
     }
 
     return out;
@@ -131,6 +148,7 @@ std::ostream & operator<< (std::ostream & out, connection_metadata const & data)
 
 class websocket_endpoint {
 public:
+
     websocket_endpoint () : m_next_id(0) {
         m_endpoint.clear_access_channels(websocketpp::log::alevel::all);
         m_endpoint.clear_error_channels(websocketpp::log::elevel::all);
@@ -166,6 +184,7 @@ public:
     int connect(std::string const & uri) {
         websocketpp::lib::error_code ec;
 
+        m_endpoint.set_tls_init_handler(connection_metadata::on_tls_init);
         client::connection_ptr con = m_endpoint.get_connection(uri, ec);
 
         if (ec) {

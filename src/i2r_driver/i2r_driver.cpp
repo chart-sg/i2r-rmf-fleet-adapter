@@ -5,17 +5,25 @@ namespace i2r_driver {
 
 void send_i2r_line_following_mission(rclcpp::Node* node, I2RPathInfo& info)
 {
-
+    std::vector <rmf_fleet_msgs::msg::Location> i2r_waypoint;
     RCLCPP_INFO(
-        node->get_logger(), "---------------> Task id (line following): [%s]", info.task_id.c_str());
-
+        node->get_logger(), "---------------> Task id (line following): [%i]", info.task_id);
+    
+    for (const auto& location : info.to_i2r_waypoint)
+    {
+        rmf_fleet_msgs::msg::Location _i2r_waypoint;
+        transform_rmf_to_i2r(node, location, _i2r_waypoint);
+        i2r_waypoint.emplace_back(_i2r_waypoint);
+    }
+    std::string s = mrccc_utils::mission_gen::line_following(info.task_id, i2r_waypoint);
+    // wss send string
 }
 
 void send_i2r_docking_mission(rclcpp::Node* node, std::string task_id)
 {
 
     RCLCPP_INFO(
-        node->get_logger(), "---------------> Task id (docking): [%s]", task_id.c_str());
+        node->get_logger(), "---------------> Task id (docking): [%i]", task_id);
     
 }
 
@@ -66,8 +74,8 @@ void transform_i2r_to_rmf(
 
 void transform_rmf_to_i2r(
     rclcpp::Node* node,
-    const rmf_fleet_msgs::msg::Location& _rmf_frame_location,
-    rmf_fleet_msgs::msg::Location& _fleet_frame_location) 
+    const rmf_fleet_msgs::msg::Location& _rmf_frame_location,   // RMF frame
+    rmf_fleet_msgs::msg::Location& _fleet_frame_location)       // I2R Robot frame
 {
 
     std::vector<double> map_coordinate_transformation;
@@ -95,17 +103,17 @@ void transform_rmf_to_i2r(
 }
 
 
-double get_yaw_from_quat(tf2::Quaternion _quat)
-{
-  tf2::Matrix3x3 tf2_mat(_quat);
+// double get_yaw_from_quat(tf2::Quaternion _quat)
+// {
+//   tf2::Matrix3x3 tf2_mat(_quat);
   
-  double yaw;
-  double pitch;
-  double roll;
-  tf2_mat.getEulerYPR(yaw, pitch, roll);
-  return yaw;
+//   double yaw;
+//   double pitch;
+//   double roll;
+//   tf2_mat.getEulerYPR(yaw, pitch, roll);
+//   return yaw;
 
-}
+// }
 
 
 tf2::Quaternion get_quat_from_yaw(double _yaw)

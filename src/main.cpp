@@ -18,6 +18,7 @@
 
 // #include "json_txt_gen.cpp"
 #include "i2r_driver/i2r_driver.hpp"
+#include "client.cpp"
 
 // Internal implementation-specific headers
 #include "rmf_fleet_adapter/ParseArgs.hpp"
@@ -174,6 +175,10 @@ public:
       _path_request_pub(std::move(path_request_pub)),
       _mode_request_pub(std::move(mode_request_pub))
   {
+    const auto wsc = std::make_shared<websocket_endpoint>();
+    int id = wsc->connect("https://mrccc.chart.com.sg:5100");
+    if (id !=-1)  std::cout << "> Created connection with id " << id << std::endl;
+
     _current_path_request.fleet_name = fleet_name;
     _current_path_request.robot_name = robot_name;
 
@@ -208,14 +213,14 @@ public:
     _current_path_request.task_id = std::to_string(++_current_task_id);
     _current_path_request.path.clear();
 
-    std::vector<rmf_fleet_msgs::msg::Location> to_i2r_waypoint; //kj
+    // std::vector<rmf_fleet_msgs::msg::Location> to_i2r_waypoint; //kj
 
     for (const auto& wp : waypoints)
     {
       rmf_fleet_msgs::msg::Location location;
       const Eigen::Vector3d p = wp.position();
 
-      rmf_fleet_msgs::msg::Location _to_i2r_waypoint; //kj
+      // rmf_fleet_msgs::msg::Location _to_i2r_waypoint; //kj
 
       location.t = rmf_traffic_ros2::convert(wp.time());
       location.x = p.x();
@@ -238,12 +243,12 @@ public:
       //i2r_driver::transform_rmf_to_i2r(_node, location, _to_i2r_waypoint); 
       
       //to_i2r_waypoint.push_back(_to_i2r_waypoint); //kj, dont transform here
-      to_i2r_waypoint.push_back(location); //kj
+      // to_i2r_waypoint.push_back(location); //kj
       
     }
 
-    _path_requested_time = std::chrono::steady_clock::now();
-    _path_request_pub->publish(_current_path_request);
+    // _path_requested_time = std::chrono::steady_clock::now();
+    // _path_request_pub->publish(_current_path_request);
     
     //kj
     //1. transform to i2r robot coordinate --> [to_i2r_waypoint]
@@ -253,22 +258,15 @@ public:
 
 
     //example of implementing i2r_driver func
-    /*
-    i2r_driver::I2RPathInfo i2rpath;
-    i2rpath.task_id = _current_path_request.task_id;
-    i2rpath.to_i2r_waypoint = to_i2r_waypoint;
-
-    i2r_driver::send_i2r_docking_mission(_node, _current_path_request.task_id);
-    i2r_driver::send_i2r_line_following_mission(_node, i2rpath);
     
-    tf2::Quaternion quat_tf;
-    quat_tf.setRPY(0.0, 0.0, 0.5);
-    quat_tf.normalize();
-    double yawyaw = i2r_driver::get_yaw_from_quat(quat_tf);
-    RCLCPP_INFO(_node->get_logger(),"yawyaw:(%.3f)", yawyaw);
+    i2r_driver::I2RPathInfo i2rpath;
+    i2rpath.task_id = std::stoi(_current_path_request.task_id);
+    i2rpath.to_i2r_waypoint = _current_path_request.path;
 
-    tf2::Quaternion quat = i2r_driver::get_quat_from_yaw(0.5);
-    */
+
+    // i2r_driver::send_i2r_docking_mission(_node, _current_path_request.task_id);
+    i2r_driver::send_i2r_line_following_mission(_node, i2rpath);//, i2rpath.to_i2r_waypoint);
+    
   }
 
 
@@ -1113,16 +1111,12 @@ int main(int argc, char* argv[])
   
 
   rclcpp::init(argc, argv);
-  if (DEBUG){std::cout<<"Broke here 0"<<std::endl;};
   const auto adapter = rmf_fleet_adapter::agv::Adapter::make("fleet_adapter");
-  if (DEBUG){std::cout<<"Broke here 0.5"<<std::endl;};
   if (!adapter)
     return 1;
-  if (DEBUG){std::cout<<"Broke here 1"<<std::endl;};
   const auto fleet_connections = make_fleet(adapter);
   if (!fleet_connections)
     return 1;
-  if (DEBUG){std::cout<<"Broke here 2"<<std::endl;};
   RCLCPP_INFO(adapter->node()->get_logger(), "Starting Fleet Adapter");
 
   // Start running the adapter and wait until it gets stopped by SIGINT

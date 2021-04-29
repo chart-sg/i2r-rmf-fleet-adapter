@@ -42,6 +42,9 @@
 #include <string>
 #include <sstream>
 
+#include "i2r_driver/i2r_driver.hpp"
+#include "i2r_driver/mission_gen.hpp"
+
 typedef websocketpp::client<websocketpp::config::asio_tls_client> client;
 
 class connection_metadata {
@@ -119,8 +122,8 @@ public:
     void record_sent_message(std::string message) {
         m_messages.push_back(">> " + message);
     }
+    std::vector<std::string> m_messages;
 
-    friend std::ostream & operator<< (std::ostream & out, connection_metadata const & data);
 private:
     int m_id;
     websocketpp::connection_hdl m_hdl;
@@ -128,23 +131,7 @@ private:
     std::string m_uri;
     std::string m_server;
     std::string m_error_reason;
-    std::vector<std::string> m_messages;
 };
-
-std::ostream & operator<< (std::ostream & out, connection_metadata const & data) {
-    out << "> URI: " << data.m_uri << "\n"
-        << "> Status: " << data.m_status << "\n"
-        << "> Remote Server: " << (data.m_server.empty() ? "None Specified" : data.m_server) << "\n"
-        << "> Error/close reason: " << (data.m_error_reason.empty() ? "N/A" : data.m_error_reason) << "\n";
-    out << "> Messages Processed: (" << data.m_messages.size() << ") \n";
-
-    // std::vector<std::string>::const_iterator it;
-    for (const std::string& i : data.m_messages) {
-        out << i << "\n";
-    }
-
-    return out;
-}
 
 class websocket_endpoint {
 public:
@@ -157,6 +144,8 @@ public:
         m_endpoint.start_perpetual();
 
         m_thread = websocketpp::lib::make_shared<websocketpp::lib::thread>(&client::run, &m_endpoint);
+    
+        mrccc_utils::mission_gen::identifyMe();
     }
 
     ~websocket_endpoint() {
@@ -182,6 +171,7 @@ public:
     }
 
     int connect(std::string const & uri) {
+
         websocketpp::lib::error_code ec;
 
         m_endpoint.set_tls_init_handler(connection_metadata::on_tls_init);
@@ -277,71 +267,88 @@ private:
     int m_next_id;
 };
 
-int main() {
-    bool done = false;
-    std::string input;
-    websocket_endpoint endpoint;
+// int main() {
+//     bool done = false;
+//     std::string input;
+//     websocket_endpoint endpoint;
 
-    while (!done) {
-        std::cout << "Enter Command: ";
-        std::getline(std::cin, input);
 
-        if (input == "quit") {
-            done = true;
-        } else if (input == "help") {
-            std::cout
-                << "\nCommand List:\n"
-                << "connect <ws uri>\n"
-                << "send <connection id> <message>\n"
-                << "close <connection id> [<close code:default=1000>] [<close reason>]\n"
-                << "show <connection id>\n"
-                << "help: Display this help text\n"
-                << "quit: Exit the program\n"
-                << std::endl;
-        } else if (input.substr(0,7) == "connect") {
-            int id = endpoint.connect(input.substr(8));
-            if (id != -1) {
-                std::cout << "> Created connection with id " << id << std::endl;
-            }
-        } else if (input.substr(0,4) == "send") {
-            std::stringstream ss(input);
-            
-            std::string cmd;
-            int id;
-            std::string message;
-            
-            ss >> cmd >> id;
-            std::getline(ss,message);
-            
-            endpoint.send(id, message);
-        } else if (input.substr(0,5) == "close") {
-            std::stringstream ss(input);
-            
-            std::string cmd;
-            int id;
-            int close_code = websocketpp::close::status::normal;
-            std::string reason;
-            
-            ss >> cmd >> id >> close_code;
-            std::getline(ss,reason);
-            
-            endpoint.close(id, close_code, reason);
-        } else if (input.substr(0,4) == "show") {
-            int id = atoi(input.substr(5).c_str());
+//     while (!done) {
+//         std::cout << "Enter Command: ";
+//         std::getline(std::cin, input);
 
-            connection_metadata::ptr metadata = endpoint.get_metadata(id);
-            if (metadata) {
-                std::cout << *metadata << std::endl;
-            } else {
-                std::cout << "> Unknown connection id " << id << std::endl;
-            }
-        } else {
-            std::cout << "> Unrecognized Command" << std::endl;
-        }
-    }
+//         if (input == "quit") {
+//             done = true;
+//         } else if (input == "help") {
+//             std::cout
+//                 << "\nCommand List:\n"
+//                 << "connect <ws uri>\n"
+//                 << "send <connection id> <message>\n"
+//                 << "close <connection id> [<close code:default=1000>] [<close reason>]\n"
+//                 << "show <connection id>\n"
+//                 << "help: Display this help text\n"
+//                 << "quit: Exit the program\n"
+//                 << std::endl;
+//         } else if (input.substr(0,7) == "connect") {
+//             int id = endpoint.connect(input.substr(8));
+//             if (id != -1) {
+//                 std::cout << "> Created connection with id " << id << std::endl;
+//             }
+//         } else if (input.substr(0,4) == "send") {
+//             std::stringstream ss(input);
+            
+//             std::string cmd;
+//             int id;
+//             std::string message;
+            
+//             ss >> cmd >> id;
+//             std::getline(ss,message);
+            
+//             endpoint.send(id, message);
+//         } else if (input.substr(0,5) == "close") {
+//             std::stringstream ss(input);
+            
+//             std::string cmd;
+//             int id;
+//             int close_code = websocketpp::close::status::normal;
+//             std::string reason;
+            
+//             ss >> cmd >> id >> close_code;
+//             std::getline(ss,reason);
+            
+//             endpoint.close(id, close_code, reason);
+//         } else if (input.substr(0,4) == "show") {
+//             int id = atoi(input.substr(5).c_str());
 
-    return 0;
-}
+//             connection_metadata::ptr metadata = endpoint.get_metadata(id);
+//             if (metadata) {
+//                 // std::cout << *metadata << std::endl;
+//             } else {
+//                 std::cout << "> Unknown connection id " << id << std::endl;
+//             }
+//         } 
+//         // Temporarily included this for testing
+//         else if (input.substr(0,5) == "dummy") {
+//             std::cout<<"executing dummy"<<std::endl;
+//             int id = endpoint.connect("https://mrccc.chart.com.sg:5100");
+//             if (id != -1) {
+//                 std::cout << "> Created connection with id " << id << std::endl;
+//             }
+//             sleep(1);
+//             std::string i = mrccc_utils::mission_gen::identifyMe();
+//             endpoint.send(0,i);
+//             std::cout<<"Sending "<<i<<std::endl;
+//             // wait for response instead of using sleep()
+//             sleep(1);
+//             std::string test = mrccc_utils::mission_gen::SysTest();
+//             endpoint.send(0,test);
+//             std::cout<<"Sending "<<test<<std::endl;
+//             sleep(10);
+//             std::string s = mrccc_utils::mission_gen::line_following(99);
+//             std::cout<<"Sending "<<s<<std::endl;
+//             endpoint.send(0,s);
+
+// }
 
 /*
 

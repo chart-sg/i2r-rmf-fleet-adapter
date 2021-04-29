@@ -1,3 +1,4 @@
+#pragma once
 
 #include <rmf_fleet_msgs/msg/path_request.hpp>
 #include <Eigen/Geometry>
@@ -5,15 +6,13 @@
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 #include <tf2/LinearMath/Quaternion.h>
 #include "rclcpp/rclcpp.hpp"
-
-
+#include "i2r_driver/mission_gen.hpp"
 
 namespace i2r_driver {
 
-
 struct I2RPathInfo
 {
-    std::string task_id;
+    int task_id;
     std::vector<rmf_fleet_msgs::msg::Location> to_i2r_waypoint; 
 };
 

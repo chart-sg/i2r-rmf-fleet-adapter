@@ -17,8 +17,7 @@
 #define DEBUG true
 
 // #include "json_txt_gen.cpp"
-#include "i2r_driver/i2r_driver.hpp"
-#include "client.cpp"
+#include "client.hpp"
 
 // Internal implementation-specific headers
 #include "rmf_fleet_adapter/ParseArgs.hpp"
@@ -194,6 +193,39 @@ public:
     _travel_info.traits = std::move(traits);
     _travel_info.fleet_name = std::move(fleet_name);
     _travel_info.robot_name = std::move(robot_name);
+  }
+
+  void wss_client(
+    const rmf_fleet_msgs::msg::FleetState::SharedPtr msg
+  )
+  {
+
+    // c = std::weak_ptr<Connections>(connections);
+
+    // if (msg->name != fleet_name)
+    // return;
+
+    // const auto connections = c.lock();
+    // if (!connections)
+    // return;
+
+    // for (const auto& state : msg->robots)
+    // {
+    //     const auto insertion = connections->robots.insert({state.name, nullptr});
+    //     const bool new_robot = insertion.second;
+    //     if (new_robot)
+    //     {
+    //         // We have not seen this robot before, so let's add it to the fleet.
+    //         connections->add_robot(fleet_name, state);
+    //     }
+
+    //     const auto& command = insertion.first->second;
+    //     if (command)
+    //     {
+    //         // We are ready to command this robot, so let's update its state
+    //         command->update_state(state);
+    //     }
+    // }
   }
 
   void follow_new_path(
@@ -632,6 +664,7 @@ using FleetDriverRobotCommandHandlePtr =
 /// This is an RAII class that keeps the connections to the fleet driver alive.
 struct Connections : public std::enable_shared_from_this<Connections>
 {
+
   /// The API for adding new robots to the adapter
   rmf_fleet_adapter::agv::FleetUpdateHandlePtr fleet;
 
@@ -1059,38 +1092,38 @@ std::shared_ptr<Connections> make_fleet(
   // MRCCC -> Fleet state publisher
   // connections->fleet_state_pub = node->create_publisher<rmf_fleet_msgs::msg::FleetState>("", rclcpp::SystemDefaultsQoS(), someFunc())
 
-  connections->fleet_state_sub = node->create_subscription<
-      rmf_fleet_msgs::msg::FleetState>(
-        rmf_fleet_adapter::FleetStateTopicName,
-        rclcpp::SystemDefaultsQoS(),
-        [c = std::weak_ptr<Connections>(connections), fleet_name](
-        const rmf_fleet_msgs::msg::FleetState::SharedPtr msg)
-  {
-    if (msg->name != fleet_name)
-      return;
+  // connections->fleet_state_sub = node->create_subscription<
+  //     rmf_fleet_msgs::msg::FleetState>(
+  //       rmf_fleet_adapter::FleetStateTopicName,
+  //       rclcpp::SystemDefaultsQoS(),
+  //       [c = std::weak_ptr<Connections>(connections), fleet_name](
+  //       const rmf_fleet_msgs::msg::FleetState::SharedPtr msg)
+  // {
+  //   if (msg->name != fleet_name)
+  //     return;
 
-    const auto connections = c.lock();
-    if (!connections)
-      return;
+  //   const auto connections = c.lock();
+  //   if (!connections)
+  //     return;
 
-    for (const auto& state : msg->robots)
-    {
-      const auto insertion = connections->robots.insert({state.name, nullptr});
-      const bool new_robot = insertion.second;
-      if (new_robot)
-      {
-        // We have not seen this robot before, so let's add it to the fleet.
-        connections->add_robot(fleet_name, state);
-      }
+  //   for (const auto& state : msg->robots)
+  //   {
+  //     const auto insertion = connections->robots.insert({state.name, nullptr});
+  //     const bool new_robot = insertion.second;
+  //     if (new_robot)
+  //     {
+  //       // We have not seen this robot before, so let's add it to the fleet.
+  //       connections->add_robot(fleet_name, state);
+  //     }
 
-      const auto& command = insertion.first->second;
-      if (command)
-      {
-        // We are ready to command this robot, so let's update its state
-        command->update_state(state);
-      }
-    }
-  });
+  //     const auto& command = insertion.first->second;
+  //     if (command)
+  //     {
+  //       // We are ready to command this robot, so let's update its state
+  //       command->update_state(state);
+  //     }
+  //   }
+  // });
 
   const std::string lift_clearance_srv =
       node->declare_parameter<std::string>(
@@ -1108,7 +1141,6 @@ std::shared_ptr<Connections> make_fleet(
 //==============================================================================
 int main(int argc, char* argv[])
 {
-  
 
   rclcpp::init(argc, argv);
   const auto adapter = rmf_fleet_adapter::agv::Adapter::make("fleet_adapter");

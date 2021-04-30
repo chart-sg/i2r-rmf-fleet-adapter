@@ -15,6 +15,7 @@
 
 #include "i2r_driver/i2r_driver.hpp"
 #include "i2r_driver/mission_gen.hpp"
+#include "i2r_driver/feedback_parser.hpp"
 
 typedef websocketpp::client<websocketpp::config::asio_tls_client> client;
 

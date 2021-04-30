@@ -1,4 +1,4 @@
-#include <feedback_parser.hpp>
+#include <i2r_driver/feedback_parser.hpp>
 
 namespace mrccc_utils {
 namespace feedback_parser {
@@ -64,7 +64,7 @@ rmf_fleet_msgs::msg::FleetState json_amclpose_to_fleetstate(Json::Value& obj)
     _robot_state.location.yaw       = std::move(obj["payload"]["pose"]["pose"]["orientation"]["z"].asFloat());
     _robot_state.location.level_name= ""; //std::move(obj["payload"]["pose"]["pose"]["position"]["x"].asFloat());
     _robot_state.location.index     = 0; //std::move(obj["payload"]["pose"]["pose"]["position"]["x"].asFloat());
-    _robot_state.path.emplace_back(); // FILL IN PATH REQUEST RECIEVED HERE!!
+    _robot_state.path               = {}; // FILL IN PATH REQUEST RECIEVED HERE!!
     
     _fleet_state.name               = std::string("Magni");
     _fleet_state.robots.emplace_back(_robot_state);
@@ -108,7 +108,7 @@ rmf_fleet_msgs::msg::FleetState json_statuspub_to_fleetstate(Json::Value& obj)
     return _fleet_state;
 }
 
-rmf_fleet_msgs::msg::FleetState RobotStateUpdate(std::string& Jstring)
+rmf_fleet_msgs::msg::FleetState RobotStateUpdate(std::string Jstring)
 {
     Json::Value obj;
     rmf_fleet_msgs::msg::FleetState fs;
@@ -121,6 +121,14 @@ rmf_fleet_msgs::msg::FleetState RobotStateUpdate(std::string& Jstring)
     case kStatusStatusPub:
         fs = json_statuspub_to_fleetstate(obj);
         return fs;
+        
+    case kStatusMoveBaseFootprint:
+        // empty for now
+        break;
+
+    case kStatusCurrentCompletedSubMission:
+        // empty for now
+        break;
 
     case kStatusAMCLPose:
         // if (obj.getMemberNames().empty() ) {
@@ -130,17 +138,9 @@ rmf_fleet_msgs::msg::FleetState RobotStateUpdate(std::string& Jstring)
         fs = json_amclpose_to_fleetstate(obj);
         return fs;
 
-    // case kStatusMoveBaseFootprint:
-    //     // empty for now
-    //     return 0;
-
-    // case kStatusCurrentCompletedSubMission:
-    //     // empty for now
-    //     return 0;
-
-    // case kStatusUnknown:
-    //     // empty for now
-    //     return 0;
+    case kStatusUnknown:
+        // empty for now
+        break;
     }
 
 

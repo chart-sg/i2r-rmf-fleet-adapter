@@ -16,7 +16,6 @@
 */
 #define DEBUG true
 
-// #include "json_txt_gen.cpp"
 #include "client.hpp"
 
 // Internal implementation-specific headers

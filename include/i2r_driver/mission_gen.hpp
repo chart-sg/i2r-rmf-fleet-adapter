@@ -28,5 +28,7 @@ std::string identifyMe();
 
 std::string SysTest();
 
+std::string initRobotPose();
+
 } // namespace mission_gen
 } // namespace mrccc_utils

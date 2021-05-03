@@ -329,5 +329,35 @@ std::string SysTest() {
     return systest;
 }
 
+std::string initRobotPose() {
+    Json::Value root;
+    Json::StreamWriterBuilder builder;
+    const std::unique_ptr<Json::StreamWriter> writer(builder.newStreamWriter());
+    std::ofstream output;
+    root["header"]["clientname"] = "CHART";
+    root["header"]["cmd"] = 33;
+    root["header"]["dest_clientname"] = "magni";
+    root["header"]["requestid"] = "9999";
+    root["header"]["subcmd"] = 254;
+
+    root["payload"]["pose"]["description"] = "2D Pose Estimate";
+    root["payload"]["pose"]["nav_angle_w"] = 0.707; 
+    root["payload"]["pose"]["nav_angle_x"] = 0;
+    root["payload"]["pose"]["nav_angle_y"] = 0; 
+    root["payload"]["pose"]["nav_angle_z"] = -0.707;
+    root["payload"]["pose"]["nav_map_name"] = "chart_map"; 
+    root["payload"]["pose"]["nav_pose_x"] = 12.78;
+    root["payload"]["pose"]["nav_pose_y"] = -1.41; 
+    root["payload"]["pose"]["nav_pose_z"] = 0;
+    root["payload"]["rotate_after_initialpose"] = 0;
+    Json::FastWriter print;
+    std::string initpose = print.write(root);
+    // DEBUGGING: Saving root data into text file
+    // output.open("dock.txt");
+    // writer->write(root, &output);
+    // output.close();
+    return initpose;
+}
+
 } // namespace mission_gen
 } // namespace mrccc_utils  

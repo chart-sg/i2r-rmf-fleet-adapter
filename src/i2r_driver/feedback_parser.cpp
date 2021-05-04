@@ -54,6 +54,13 @@ rmf_fleet_msgs::msg::FleetState json_amclpose_to_fleetstate(Json::Value& obj, st
     std::cout<<"pos_y"<<obj["payload"]["pose"]["pose"]["position"]["y"].asFloat()<<std::endl;
     std::cout<<"pos_z"<<obj["payload"]["pose"]["pose"]["position"]["z"].asFloat()<<std::endl;
     #endif
+    
+    // Creating quaternion class
+    tf2::Quaternion q( obj["payload"]["pose"]["pose"]["orientation"]["x"].asFloat(),
+		obj["payload"]["pose"]["pose"]["orientation"]["y"].asFloat(),
+		obj["payload"]["pose"]["pose"]["orientation"]["z"].asFloat(),
+		obj["payload"]["pose"]["pose"]["orientation"]["w"].asFloat() 
+	);
 
     _robot_state.name               = std::move(obj["header"]["clientname"].asString());
     _robot_state.model              = "empty"; // ??????
@@ -63,9 +70,7 @@ rmf_fleet_msgs::msg::FleetState json_amclpose_to_fleetstate(Json::Value& obj, st
     _robot_state.battery_percent    = 0;
     _robot_state.location.x         = obj["payload"]["pose"]["pose"]["position"]["x"].asFloat();
     _robot_state.location.y         = obj["payload"]["pose"]["pose"]["position"]["y"].asFloat();
-
-    // Need to convert this to Euler degrees. This is in quaternions for now
-    _robot_state.location.yaw       = obj["payload"]["pose"]["pose"]["orientation"]["z"].asFloat(); 
+    _robot_state.location.yaw       = q.getAngle(); 
 
     _robot_state.location.index     = obj["payload"]["mission_id"].asInt64();
 
@@ -77,15 +82,15 @@ rmf_fleet_msgs::msg::FleetState json_amclpose_to_fleetstate(Json::Value& obj, st
     return _fleet_state;
 }
 
-rmf_fleet_msgs::msg::FleetState json_statuspub_to_fleetstate(Json::Value& obj)
-{
-    return _fleet_state;
-}
+// rmf_fleet_msgs::msg::FleetState json_statuspub_to_fleetstate(Json::Value& obj)
+// {
+//     return _fleet_state;
+// }
 
-rmf_fleet_msgs::msg::FleetState json_movebasefoot_to_fleetstate(Json::Value& obj)
-{
-    return _fleet_state;
-}
+// rmf_fleet_msgs::msg::FleetState json_movebasefoot_to_fleetstate(Json::Value& obj)
+// {
+//     return _fleet_state;
+// }
 
 rmf_fleet_msgs::msg::FleetState RobotStateUpdate(std::string str)
 {
@@ -133,6 +138,12 @@ rmf_fleet_msgs::msg::FleetState RobotStateUpdate(std::string str)
     {
         rmf_fleet_msgs::msg::FleetState fs;
         std::cout<<"kStatusUnknown"<<std::endl;
+        return fs;
+    }
+    default:
+    {
+        rmf_fleet_msgs::msg::FleetState fs;
+        std::cout<<"default"<<std::endl;
         return fs;
     }
     }

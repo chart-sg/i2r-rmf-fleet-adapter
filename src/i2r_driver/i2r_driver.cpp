@@ -1,21 +1,23 @@
-#include "i2r_driver/i2r_driver.hpp"
+#include <i2r_driver/i2r_driver.hpp>
 
 namespace i2r_driver {
       
 
-void send_i2r_line_following_mission(rclcpp::Node* node, I2RPathInfo& info)
+void send_i2r_line_following_mission(rclcpp::Node* node, std::string& task_id,
+    std::vector<rmf_fleet_msgs::msg::Location> path)
 {
+    int _task_id = std::move(std::stoi(task_id)); 
     std::vector <rmf_fleet_msgs::msg::Location> i2r_waypoint;
     RCLCPP_INFO(
-        node->get_logger(), "---------------> Task id (line following): [%i]", info.task_id);
+        node->get_logger(), "---------------> Task id (line following): [%i]", task_id);
     
-    for (const auto& location : info.to_i2r_waypoint)
+    for (const auto& location : path)
     {
         rmf_fleet_msgs::msg::Location _i2r_waypoint;
         transform_rmf_to_i2r(node, location, _i2r_waypoint);
         i2r_waypoint.emplace_back(_i2r_waypoint);
     }
-    std::string s = mrccc_utils::mission_gen::line_following(info.task_id, i2r_waypoint);
+    std::string s = mrccc_utils::mission_gen::line_following(_task_id, i2r_waypoint);
     // wss send string
 }
 

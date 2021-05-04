@@ -289,14 +289,10 @@ public:
 
 
     //example of implementing i2r_driver func
-    
-    i2r_driver::I2RPathInfo i2rpath;
-    i2rpath.task_id = std::stoi(_current_path_request.task_id);
-    i2rpath.to_i2r_waypoint = _current_path_request.path;
-
-
     // i2r_driver::send_i2r_docking_mission(_node, _current_path_request.task_id);
-    i2r_driver::send_i2r_line_following_mission(_node, i2rpath);//, i2rpath.to_i2r_waypoint);
+    i2r_driver::send_i2r_line_following_mission(_node, 
+      _current_path_request.task_id, //string
+      _current_path_request.path); //rmf_fleet_msgs.location
     
   }
 

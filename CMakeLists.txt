@@ -22,21 +22,18 @@ find_package(rmf_fleet_adapter REQUIRED)
 
 ########################
 # main.cpp
-# add_executable(${CMAKE_PROJECT_NAME} src/main.cpp src/i2r_driver/mission_gen.cpp src/i2r_driver/i2r_driver.cpp)
+add_executable(${CMAKE_PROJECT_NAME} src/main.cpp src/i2r_driver/mission_gen.cpp src/i2r_driver/i2r_driver.cpp)
 
-# Apparently CMake has namespace, so will have to check what the actual name is used in the proect() CMakeLists is. 
-# I.e. find_package(Eigen3) uses Eigen3::Eigen namespace, where in the root folder's CMakeLists uses project(Eigen)
+target_link_libraries(${CMAKE_PROJECT_NAME}   
+  rmf_fleet_adapter::rmf_fleet_adapter
+  jsoncpp
+  Threads::Threads
+  crypto
+  ssl
+  )
 
-# target_link_libraries(${CMAKE_PROJECT_NAME}   
-#   rmf_fleet_adapter::rmf_fleet_adapter
-#   jsoncpp
-#   Threads::Threads
-#   crypto
-#   ssl
-#   )
-
-# target_include_directories(${CMAKE_PROJECT_NAME}
-  # PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_include_directories(${CMAKE_PROJECT_NAME}
+  PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 ########################
 # client (TODO: Make it into a header libary. But for now just keep as is for testing)
@@ -58,14 +55,14 @@ install(TARGETS
   ${CMAKE_PROJECT_NAME}_client
   DESTINATION lib/${PROJECT_NAME})
 
-# install(
-#   TARGETS
-#   ${CMAKE_PROJECT_NAME}
-#   DESTINATION lib/${PROJECT_NAME})
+install(
+  TARGETS
+  ${CMAKE_PROJECT_NAME}
+  DESTINATION lib/${PROJECT_NAME})
 
-# install(
-#     DIRECTORY launch
-#     DESTINATION share/${PROJECT_NAME}
-#   )
+install(
+    DIRECTORY launch
+    DESTINATION share/${PROJECT_NAME}
+  )
   
 ament_package()

@@ -5,22 +5,18 @@
 #include <geometry_msgs/msg/quaternion.hpp>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 #include <tf2/LinearMath/Quaternion.h>
-#include "rclcpp/rclcpp.hpp"
-#include "i2r_driver/mission_gen.hpp"
+#include <rclcpp/rclcpp.hpp>
+#include <i2r_driver/mission_gen.hpp>
 
 namespace i2r_driver {
 
-struct I2RPathInfo
-{
-    int task_id;
-    std::vector<rmf_fleet_msgs::msg::Location> to_i2r_waypoint; 
-};
-
-void send_i2r_line_following_mission(rclcpp::Node* node, I2RPathInfo& info);
+void send_i2r_line_following_mission(rclcpp::Node* node, std::string& task_id, 
+      std::vector<rmf_fleet_msgs::msg::Location> path);
 
 void send_i2r_docking_mission(rclcpp::Node* node, std::string task_id);
 
-void get_map_transfomation_param(rclcpp::Node* node, std::vector<double>& map_coordinate_transformation);
+void get_map_transfomation_param(rclcpp::Node* node, 
+      std::vector<double>& map_coordinate_transformation);
 
 void transform_i2r_to_rmf(
       rclcpp::Node* node,

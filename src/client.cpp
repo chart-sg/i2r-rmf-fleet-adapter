@@ -71,13 +71,14 @@ void connection_metadata::on_close(client * c, websocketpp::connection_hdl hdl) 
 
 void connection_metadata::on_message(websocketpp::connection_hdl, client::message_ptr msg) {
     //std::cout <<  msg->get_payload() << std::endl;
-    if (msg->get_opcode() == websocketpp::frame::opcode::text) {
-        m_messages.push_back("<< " + msg->get_payload());
-    } else {
-        m_messages.push_back("<< " + websocketpp::utility::to_hex(msg->get_payload()));
-    }
-    const auto& fs = mrccc_utils::feedback_parser::RobotStateUpdate(std::string(msg->get_payload()));
-
+    // if (msg->get_opcode() == websocketpp::frame::opcode::text) {
+    //     m_messages.push_back("<< " + msg->get_payload());
+    // } else {
+    //     m_messages.push_back("<< " + websocketpp::utility::to_hex(msg->get_payload()));
+    // }
+    // std::cout<<"on_message"<<std::endl;
+    // std::cout<<msg->get_payload()<<std::endl;
+    const auto& fs = mrccc_utils::feedback_parser::RobotStateUpdate(msg->get_payload());
 
     //std::weak_ptr<Connection> c = std::make_shared<Connections>();
     
@@ -270,15 +271,15 @@ int main() {
             sleep(1);
             std::string initpose_cmd = mrccc_utils::mission_gen::initRobotPose();
             std::cout << "Initialise pose!" << std::endl;
-            // std::cout << initpose_cmd << std::endl;
-            // endpoint.send(id, initpose_cmd);
+            std::cout << initpose_cmd << std::endl;
+            endpoint.send(id, initpose_cmd);
 
-            // while(1)
-            // {
-            //     sleep(1);
+            while(1)
+            {
+                sleep(1);
                 // connection_metadata::ptr metadata = endpoint.get_metadata(0);
                 // std::cout<<"The size of the vector in the feedback is "<<metadata->m_messages.size()<<std::endl;
-            // }
+            }
         }
         else {
             std::cout << "> Unrecognized Command" << std::endl;

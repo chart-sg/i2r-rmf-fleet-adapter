@@ -10,7 +10,7 @@
 #include <tf2/LinearMath/Quaternion.h>
 #include <rmf_fleet_msgs/msg/fleet_state.hpp>
 
-#define TROUBLESHOOT false
+// #define TROUBLESHOOT false
 
 namespace mrccc_utils {
 namespace feedback_parser {

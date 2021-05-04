@@ -39,33 +39,39 @@ enum StatusType
     kStatusUnknown = 254
 } status_id;
 
-rmf_fleet_msgs::msg::FleetState json_amclpose_to_fleetstate(Json::Value& obj)
-{
+rmf_fleet_msgs::msg::FleetState json_amclpose_to_fleetstate(Json::Value& obj, std::string str)
 
-    #ifdef TROUBLESHOOT
-    std::cout<<"ori_w"<<obj["payload"]["pose"]["pose"]["orientation"]["w"]<<std::endl;
-    std::cout<<"ori_x"<<obj["payload"]["pose"]["pose"]["orientation"]["x"]<<std::endl;
-    std::cout<<"ori_y"<<obj["payload"]["pose"]["pose"]["orientation"]["y"]<<std::endl;
-    std::cout<<"ori_z"<<obj["payload"]["pose"]["pose"]["orientation"]["z"]<<std::endl;
-    std::cout<<"pos_x"<<obj["payload"]["pose"]["pose"]["position"]["x"]<<std::endl;
-    std::cout<<"pos_y"<<obj["payload"]["pose"]["pose"]["position"]["y"]<<std::endl;
-    std::cout<<"pos_z"<<obj["payload"]["pose"]["pose"]["position"]["z"]<<std::endl;
+{
+    std::cout<<str<<std::endl;
+
+    #ifdef TROUBLESHOOT 
+    std::cout<<"ori_w"<<obj["payload"]["pose"]["pose"]["orientation"]["w"].asFloat()<<std::endl;
+    std::cout<<"ori_x"<<obj["payload"]["pose"]["pose"]["orientation"]["x"].asFloat()<<std::endl;
+    std::cout<<"ori_y"<<obj["payload"]["pose"]["pose"]["orientation"]["y"].asFloat()<<std::endl;
+    std::cout<<"ori_z"<<obj["payload"]["pose"]["pose"]["orientation"]["z"].asFloat()<<std::endl;
+    std::cout<<"pos_x"<<obj["payload"]["pose"]["pose"]["position"]["x"].asFloat()<<std::endl;
+    std::cout<<"pos_y"<<obj["payload"]["pose"]["pose"]["position"]["y"].asFloat()<<std::endl;
+    std::cout<<"pos_z"<<obj["payload"]["pose"]["pose"]["position"]["z"].asFloat()<<std::endl;
     #endif
 
     _robot_state.name               = std::move(obj["header"]["clientname"].asString());
-    _robot_state.model              = "empty"; // Can be input later by the fleet adapter
-    _robot_state.task_id            = "empty"; // Will be known by the fleet adapter 
-    _robot_state.seq                = 1; // Filler for now
+    _robot_state.model              = "empty"; // ??????
+    _robot_state.task_id            = "empty"; // ??????
+    _robot_state.seq                = obj["payload"]["mission_id"].asInt64();
 
-    _robot_state.mode.mode          = rmf_fleet_msgs::msg::RobotMode::MODE_IDLE; // Should be filled by statuspub
-    _robot_state.battery_percent    =0; // Should be filled by statuspub
-    _robot_state.location.x         = std::move(obj["payload"]["pose"]["pose"]["position"]["x"].asFloat());
-    _robot_state.location.y         = std::move(obj["payload"]["pose"]["pose"]["position"]["y"].asFloat());
-    _robot_state.location.yaw       = std::move(obj["payload"]["pose"]["pose"]["orientation"]["z"].asFloat());
-    _robot_state.location.level_name= ""; //std::move(obj["payload"]["pose"]["pose"]["position"]["x"].asFloat());
-    _robot_state.location.index     = 0; //std::move(obj["payload"]["pose"]["pose"]["position"]["x"].asFloat());
-    _robot_state.path               = {}; // FILL IN PATH REQUEST RECIEVED HERE!!
-    
+    _robot_state.mode.mode          = rmf_fleet_msgs::msg::RobotMode::MODE_IDLE;
+    _robot_state.battery_percent    =0;
+
+    _robot_state.location.x         = obj["payload"]["pose"]["pose"]["position"]["x"].asFloat();
+    _robot_state.location.y         = obj["payload"]["pose"]["pose"]["position"]["y"].asFloat();
+
+    // Need to convert this to Euler degrees. This is in quaternions for now
+    _robot_state.location.yaw       = obj["payload"]["pose"]["pose"]["orientation"]["z"].asFloat(); 
+
+    _robot_state.location.index     = obj["payload"]["mission_id"].asInt64();
+
+    // _robot_state.path.emplace_back(); // FILL IN PATH REQUEST RECIEVED HERE!!
+
     _fleet_state.name               = std::string("Magni");
     _fleet_state.robots.emplace_back(_robot_state);
 
@@ -74,75 +80,63 @@ rmf_fleet_msgs::msg::FleetState json_amclpose_to_fleetstate(Json::Value& obj)
 
 rmf_fleet_msgs::msg::FleetState json_statuspub_to_fleetstate(Json::Value& obj)
 {
+    return _fleet_state;
+}
 
-    #ifdef TROUBLESHOOT
-    std::cout<<"ori_w"<<obj["payload"]["pose"]["pose"]["orientation"]["w"]<<std::endl;
-    std::cout<<"ori_x"<<obj["payload"]["pose"]["pose"]["orientation"]["x"]<<std::endl;
-    std::cout<<"ori_y"<<obj["payload"]["pose"]["pose"]["orientation"]["y"]<<std::endl;
-    std::cout<<"ori_z"<<obj["payload"]["pose"]["pose"]["orientation"]["z"]<<std::endl;
-    std::cout<<"pos_x"<<obj["payload"]["pose"]["pose"]["position"]["x"]<<std::endl;
-    std::cout<<"pos_y"<<obj["payload"]["pose"]["pose"]["position"]["y"]<<std::endl;
-    std::cout<<"pos_z"<<obj["payload"]["pose"]["pose"]["position"]["z"]<<std::endl;
-    #endif
-
-    _fleet_state.name = std::string("Magni");
-
-    _robot_state.name               = std::move(obj["header"]["clientname"].asString());
-    _robot_state.model              = "empty"; // Can be input later by the fleet adapter
-    _robot_state.task_id            = "empty"; // Will be known by the fleet adapter
-    _robot_state.seq                = 1; // Filler for now
-
-    _robot_state.mode.mode          = rmf_fleet_msgs::msg::RobotMode::MODE_IDLE;
-    _robot_state.battery_percent    =0;
-
-    _robot_state.location.x         = std::move(obj["payload"]["pose"]["pose"]["position"]["x"].asFloat());
-    _robot_state.location.y         = std::move(obj["payload"]["pose"]["pose"]["position"]["y"].asFloat());
-    _robot_state.location.yaw       = std::move(obj["payload"]["pose"]["pose"]["position"]["yaw"].asFloat());
-    _robot_state.location.level_name= ""; // std::move(obj["payload"]["pose"]["pose"]["position"]["level_name"].asString());
-    _robot_state.location.index     = 0; // std::move(obj["payload"]["pose"]["pose"]["position"]["index"].asFloat());
-    _robot_state.path.emplace_back(); // FILL IN PATH REQUEST RECIEVED HERE!!
-
-    _fleet_state.name               = std::string("Magni");
-    _fleet_state.robots.emplace_back(_robot_state);
-
+rmf_fleet_msgs::msg::FleetState json_movebasefoot_to_fleetstate(Json::Value& obj)
+{
     return _fleet_state;
 }
 
 rmf_fleet_msgs::msg::FleetState RobotStateUpdate(std::string Jstring)
 {
     Json::Value obj;
-    rmf_fleet_msgs::msg::FleetState fs;
     
     obj = string_to_json_parser(Jstring);
     status_id = (StatusType)obj["header"]["status_id"].asInt();
 
     switch(status_id)
     {
-    case kStatusStatusPub:
-        fs = json_statuspub_to_fleetstate(obj);
+    case kStatusStatusPub: // Does not have pose
+    {
+        rmf_fleet_msgs::msg::FleetState fs;
+        // std::cout<<"kStatusStatusPub"<<std::endl;
+        // fs = json_statuspub_to_fleetstate(obj); 
         return fs;
-        
-    case kStatusMoveBaseFootprint:
-        // empty for now
-        break;
-
-    case kStatusCurrentCompletedSubMission:
-        // empty for now
-        break;
-
-    case kStatusAMCLPose:
-        // if (obj.getMemberNames().empty() ) {
-        // std::cout<<"Json obj is empty!"<<std::endl;
-        // return 0;
-        // }
-        fs = json_amclpose_to_fleetstate(obj);
-        return fs;
-
-    case kStatusUnknown:
-        // empty for now
-        break;
     }
-
+    case kStatusMoveBaseFootprint: // Cant find message type, will have to see from msg->get_payload()
+     {
+        rmf_fleet_msgs::msg::FleetState fs;
+        // std::cout<<"kStatusMoveBaseFootprint"<<std::endl;
+        // fs = json_movebasefoot_to_fleetstate(obj);
+        return fs;
+     }
+    case kStatusCurrentCompletedSubMission:
+    {
+        rmf_fleet_msgs::msg::FleetState fs;
+        // std::cout<<"kStatusCurrentCompletedSubMission"<<std::endl;
+        return fs;
+    }
+    case kStatusAMCLPose:
+    {
+        rmf_fleet_msgs::msg::FleetState fs;
+        std::cout<<"kStatusAMCLPose"<<std::endl;
+        fs = json_amclpose_to_fleetstate(obj, Jstring);
+        std::cout<<"FleetState name "<<fs.name<<std::endl;
+        std::cout<<"Mission id"<<fs.robots.at(0).task_id<<std::endl;
+        
+        std::cout<<"FleetState robot x = "<<fs.robots.at(0).location.x;
+        std::cout<<" y = "<<fs.robots.at(0).location.y;
+        std::cout<<" z = "<<fs.robots.at(0).location.yaw<<std::endl;
+        return fs;
+    }
+    case kStatusUnknown:
+    {
+        rmf_fleet_msgs::msg::FleetState fs;
+        std::cout<<"kStatusUnknown"<<std::endl;
+        return fs;
+    }
+    }
 
 }
 

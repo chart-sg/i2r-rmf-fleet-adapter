@@ -39,7 +39,8 @@ enum StatusType
     kStatusUnknown = 254
 } status_id;
 
-rmf_fleet_msgs::msg::FleetState json_amclpose_to_fleetstate(Json::Value& obj, std::string str)
+rmf_fleet_msgs::msg::FleetState json_amclpose_to_fleetstate(Json::Value& obj, std::string str, 
+    rmf_fleet_msgs::msg::FleetState &fs)
 
 {
     std::cout<<str<<std::endl;
@@ -58,10 +59,8 @@ rmf_fleet_msgs::msg::FleetState json_amclpose_to_fleetstate(Json::Value& obj, st
     _robot_state.model              = "empty"; // ??????
     _robot_state.task_id            = "empty"; // ??????
     _robot_state.seq                = obj["payload"]["mission_id"].asInt64();
-
     _robot_state.mode.mode          = rmf_fleet_msgs::msg::RobotMode::MODE_IDLE;
-    _robot_state.battery_percent    =0;
-
+    _robot_state.battery_percent    = 0;
     _robot_state.location.x         = obj["payload"]["pose"]["pose"]["position"]["x"].asFloat();
     _robot_state.location.y         = obj["payload"]["pose"]["pose"]["position"]["y"].asFloat();
 
@@ -72,8 +71,8 @@ rmf_fleet_msgs::msg::FleetState json_amclpose_to_fleetstate(Json::Value& obj, st
 
     // _robot_state.path.emplace_back(); // FILL IN PATH REQUEST RECIEVED HERE!!
 
-    _fleet_state.name               = std::string("Magni");
-    _fleet_state.robots.emplace_back(_robot_state);
+    fs.name               = std::string("Magni");
+    fs.robots.emplace_back(_robot_state);
 
     return _fleet_state;
 }
@@ -88,11 +87,11 @@ rmf_fleet_msgs::msg::FleetState json_movebasefoot_to_fleetstate(Json::Value& obj
     return _fleet_state;
 }
 
-rmf_fleet_msgs::msg::FleetState RobotStateUpdate(std::string Jstring)
+rmf_fleet_msgs::msg::FleetState RobotStateUpdate(std::string str)
 {
     Json::Value obj;
     
-    obj = string_to_json_parser(Jstring);
+    obj = string_to_json_parser(str);
     status_id = (StatusType)obj["header"]["status_id"].asInt();
 
     switch(status_id)
@@ -121,7 +120,7 @@ rmf_fleet_msgs::msg::FleetState RobotStateUpdate(std::string Jstring)
     {
         rmf_fleet_msgs::msg::FleetState fs;
         std::cout<<"kStatusAMCLPose"<<std::endl;
-        fs = json_amclpose_to_fleetstate(obj, Jstring);
+        fs = json_amclpose_to_fleetstate(obj, str, fs);
         std::cout<<"FleetState name "<<fs.name<<std::endl;
         std::cout<<"Mission id"<<fs.robots.at(0).task_id<<std::endl;
         

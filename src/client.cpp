@@ -263,22 +263,33 @@ int main() {
 
             sleep(1);
             std::string idme_cmd = mrccc_utils::mission_gen::identifyMe();
+            std::cout << "Identify me!" << std::endl;
             std::cout << idme_cmd << std::endl;
             endpoint.send(id, idme_cmd);
 
             sleep(1);
             std::string initpose_cmd = mrccc_utils::mission_gen::initRobotPose();
-            std::cout << initpose_cmd << std::endl;
-            endpoint.send(id, initpose_cmd);
-        } 
+            std::cout << "Initialise pose!" << std::endl;
+            // std::cout << initpose_cmd << std::endl;
+            // endpoint.send(id, initpose_cmd);
+
+            // while(1)
+            // {
+            //     sleep(1);
+                // connection_metadata::ptr metadata = endpoint.get_metadata(0);
+                // std::cout<<"The size of the vector in the feedback is "<<metadata->m_messages.size()<<std::endl;
+            // }
+        }
         else {
             std::cout << "> Unrecognized Command" << std::endl;
         }
-        connection_metadata::ptr metadata = endpoint.get_metadata(0);
-        for (const auto & msg : metadata->m_messages){
-            std::cout<<msg<<std::endl;
-            sleep(1);
-        } 
+
+        // Checking feedback
+        
+        // for (const auto & msg : metadata->m_messages){
+        //     std::cout<<msg<<std::endl;
+        //     sleep(1);
+        // } 
     }
 
     return 0;

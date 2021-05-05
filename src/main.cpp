@@ -1095,6 +1095,22 @@ std::shared_ptr<Connections> make_fleet(
           lift_clearance_srv);
   }
 
+  // Connect to i2r robot
+  int id = connections->wsc->connect("https://mrccc.chart.com.sg:5100");
+  if (id !=-1)  std::cout << "> Created connection with id " << id << std::endl;
+  sleep(1);
+  std::string idme_cmd = mrccc_utils::mission_gen::identifyMe();
+  std::cout << "Identify me!" << std::endl;
+  //std::cout << idme_cmd << std::endl;
+  connections->wsc->send(id, idme_cmd);
+
+  sleep(1);
+  std::string initpose_cmd = mrccc_utils::mission_gen::initRobotPose();
+  std::cout << "Initialise pose!" << std::endl;
+  //std::cout << initpose_cmd << std::endl;
+  connections->wsc->send(id, initpose_cmd);
+  sleep(1);
+
   return connections;
 }
 

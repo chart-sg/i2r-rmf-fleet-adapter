@@ -62,14 +62,21 @@ rmf_fleet_msgs::msg::FleetState json_amclpose_to_fleetstate(Json::Value& obj, st
     _robot_state.name               = std::move(obj["header"]["clientname"].asString());
     _robot_state.model              = "empty"; // ??????
     _robot_state.task_id            = "empty"; // ??????
-    _robot_state.seq                = obj["payload"]["mission_id"].asInt64();
+    _robot_state.seq                = obj["payload"]["seq"].asUInt64(); // Increments for every new message
     _robot_state.mode.mode          = rmf_fleet_msgs::msg::RobotMode::MODE_IDLE;
     _robot_state.battery_percent    = 0;
+
+
+    rclcpp::Time t (obj["payload"]["header"]["stamp"]["secs"].asFloat(),
+        obj["payload"]["header"]["stamp"]["nsecs"].asFloat()
+    );
+    _robot_state.location.t         = t;
+        
     _robot_state.location.x         = obj["payload"]["pose"]["pose"]["position"]["x"].asFloat();
     _robot_state.location.y         = obj["payload"]["pose"]["pose"]["position"]["y"].asFloat();
     _robot_state.location.yaw       = q.getAngle(); 
 
-    _robot_state.location.index     = obj["payload"]["mission_id"].asInt64();
+    _robot_state.location.index     = 0;
 
     // _robot_state.path.emplace_back(); // FILL IN PATH REQUEST RECIEVED HERE!!
 

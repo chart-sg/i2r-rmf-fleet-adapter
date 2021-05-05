@@ -1,0 +1,15 @@
+<?xml version='1.0' ?>
+
+<launch>
+
+
+  <group>
+    <let name="fleet_name" value="Magni"/>
+    <include file="$(find-pkg-share axolotl)/launch/testing_deliveryrobot_adapter.launch.xml">
+      <arg name="fleet_name" value="$(var fleet_name)"/>
+      <arg name="use_sim_time" value="true"/>
+      <arg name="nav_graph_file" value="$(find-pkg-share axolotl)/../../../../src/axolotl/map/0.yaml" />
+    </include>
+  </group>
+
+</launch>

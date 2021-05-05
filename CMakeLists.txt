@@ -22,7 +22,7 @@ find_package(rmf_fleet_adapter REQUIRED)
 
 ########################
 # main.cpp
-add_executable(${CMAKE_PROJECT_NAME} src/main.cpp src/i2r_driver/mission_gen.cpp src/i2r_driver/i2r_driver.cpp)
+add_executable(${CMAKE_PROJECT_NAME} src/main.cpp src/i2r_driver/mission_gen.cpp src/i2r_driver/i2r_driver.cpp src/client.cpp src/i2r_driver/feedback_parser.cpp)
 
 target_link_libraries(${CMAKE_PROJECT_NAME}   
   rmf_fleet_adapter::rmf_fleet_adapter

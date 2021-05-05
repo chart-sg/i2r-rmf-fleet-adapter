@@ -623,43 +623,8 @@ using FleetDriverRobotCommandHandlePtr =
 struct Connections : public std::enable_shared_from_this<Connections>
 {
 
-  Connections()
-  {
-    wssc = std::make_shared<websocket_endpoint>();
-    int id = wssc->connect("https://mrccc.chart.com.sg:5100");
-    if (id !=-1)  std::cout << "> Created connection with id " << id << std::endl;
-  }
-    // void wss_client(
-    //   const rmf_fleet_msgs::msg::FleetState::SharedPtr msg
-    // )
-    // {
-      // c = std::weak_ptr<Connections>(connections);
-
-      // if (msg->name != fleet_name)
-      // return;
-
-      // const auto connections = c.lock();
-      // if (!connections)
-      // return;
-
-      // for (const auto& state : msg->robots)
-      // {
-      //     const auto insertion = connections->robots.insert({state.name, nullptr});
-      //     const bool new_robot = insertion.second;
-      //     if (new_robot)
-      //     {
-      //         // We have not seen this robot before, so let's add it to the fleet.
-      //         connections->add_robot(fleet_name, state);
-      //     }
-
-      //     const auto& command = insertion.first->second;
-      //     if (command)
-      //     {
-      //         // We are ready to command this robot, so let's update its state
-      //         command->update_state(state);
-      //     }
-      // }
-    // };
+  // i2r secure web socket connection
+  std::shared_ptr<websocket_endpoint> wsc = std::make_shared<websocket_endpoint>();
 
   /// API for connection to WSS client
   std::shared_ptr<websocket_endpoint> wssc;
@@ -1097,6 +1062,22 @@ std::shared_ptr<Connections> make_fleet(
         node->create_client<rmf_fleet_msgs::srv::LiftClearance>(
           lift_clearance_srv);
   }
+
+  // Connect to i2r robot
+  int id = connections->wsc->connect("https://mrccc.chart.com.sg:5100");
+  if (id !=-1)  std::cout << "> Created connection with id " << id << std::endl;
+  sleep(1);
+  std::string idme_cmd = mrccc_utils::mission_gen::identifyMe();
+  std::cout << "Identify me!" << std::endl;
+  //std::cout << idme_cmd << std::endl;
+  connections->wsc->send(id, idme_cmd);
+
+  sleep(1);
+  std::string initpose_cmd = mrccc_utils::mission_gen::initRobotPose();
+  std::cout << "Initialise pose!" << std::endl;
+  //std::cout << initpose_cmd << std::endl;
+  connections->wsc->send(id, initpose_cmd);
+  sleep(1);
 
   return connections;
 }

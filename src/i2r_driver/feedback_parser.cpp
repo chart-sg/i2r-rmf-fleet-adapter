@@ -3,11 +3,6 @@
 namespace mrccc_utils {
 namespace feedback_parser {
 
-rmf_fleet_msgs::msg::FleetState _fleet_state;
-rmf_fleet_msgs::msg::RobotState _robot_state;
-// rmf_fleet_msgs::msg::RobotMode  _robot_mode;
-rmf_fleet_msgs::msg::Location   _location; //FILL IN PATH REQUEST RECIEVED HERE!!
-
 Json::Value string_to_json_parser(std::string text) {
     const auto text_len = static_cast<int>(text.length());
     std::string err;
@@ -43,6 +38,8 @@ rmf_fleet_msgs::msg::FleetState json_amclpose_to_fleetstate(Json::Value& obj, st
     rmf_fleet_msgs::msg::FleetState &fs)
 
 {
+    rmf_fleet_msgs::msg::RobotState _robot_state;
+
     std::cout<<str<<std::endl;
 
     #ifdef TROUBLESHOOT 
@@ -79,7 +76,7 @@ rmf_fleet_msgs::msg::FleetState json_amclpose_to_fleetstate(Json::Value& obj, st
     fs.name               = std::string("Magni");
     fs.robots.emplace_back(_robot_state);
 
-    return _fleet_state;
+    return fs;
 }
 
 // rmf_fleet_msgs::msg::FleetState json_statuspub_to_fleetstate(Json::Value& obj)

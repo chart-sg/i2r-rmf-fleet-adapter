@@ -78,34 +78,9 @@ void connection_metadata::on_message(websocketpp::connection_hdl, client::messag
     // }
     // std::cout<<"on_message"<<std::endl;
     // std::cout<<msg->get_payload()<<std::endl;
+    // c = std::weak_ptr<Connections>(connections);
     const auto& fs = mrccc_utils::feedback_parser::RobotStateUpdate(msg->get_payload());
-
-    //std::weak_ptr<Connection> c = std::make_shared<Connections>();
-    
-    //// Some standard checks to see if this is the right fleet
-    //// if (fs->name!=fleet_name) return;
-
-    // const auto connections = c.lock();
-    // if (!connections)
-    // return;
-
-    // for (const auto& state : fs->robots)
-    // {
-    //     const auto insertion = connections->robots.insert({state.name, nullptr});
-    //     const bool new_robot = insertion.second;
-    //     if (new_robot)
-    //     {
-    //         // We have not seen this robot before, so let's add it to the fleet.
-    //         connections->add_robot(fleet_name, state);
-    //     }
-
-    //     const auto& command = insertion.first->second;
-    //     if (command)
-    //     {
-    //         // We are ready to command this robot, so let's update its state
-    //         command->update_state(state);
-    //     }
-    // }
+    // wss_client(fs);
 }
 
 int websocket_endpoint::connect(std::string const & uri) {

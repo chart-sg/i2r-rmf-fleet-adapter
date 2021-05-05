@@ -173,10 +173,6 @@ public:
       _path_request_pub(std::move(path_request_pub)),
       _mode_request_pub(std::move(mode_request_pub))
   {
-    const auto wsc = std::make_shared<websocket_endpoint>();
-    int id = wsc->connect("https://mrccc.chart.com.sg:5100");
-    if (id !=-1)  std::cout << "> Created connection with id " << id << std::endl;
-
     _current_path_request.fleet_name = fleet_name;
     _current_path_request.robot_name = robot_name;
 
@@ -192,39 +188,6 @@ public:
     _travel_info.traits = std::move(traits);
     _travel_info.fleet_name = std::move(fleet_name);
     _travel_info.robot_name = std::move(robot_name);
-  }
-
-  void wss_client(
-    const rmf_fleet_msgs::msg::FleetState::SharedPtr msg
-  )
-  {
-
-    // c = std::weak_ptr<Connections>(connections);
-
-    // if (msg->name != fleet_name)
-    // return;
-
-    // const auto connections = c.lock();
-    // if (!connections)
-    // return;
-
-    // for (const auto& state : msg->robots)
-    // {
-    //     const auto insertion = connections->robots.insert({state.name, nullptr});
-    //     const bool new_robot = insertion.second;
-    //     if (new_robot)
-    //     {
-    //         // We have not seen this robot before, so let's add it to the fleet.
-    //         connections->add_robot(fleet_name, state);
-    //     }
-
-    //     const auto& command = insertion.first->second;
-    //     if (command)
-    //     {
-    //         // We are ready to command this robot, so let's update its state
-    //         command->update_state(state);
-    //     }
-    // }
   }
 
   void follow_new_path(
@@ -660,6 +623,47 @@ using FleetDriverRobotCommandHandlePtr =
 struct Connections : public std::enable_shared_from_this<Connections>
 {
 
+  Connections()
+  {
+    wssc = std::make_shared<websocket_endpoint>();
+    int id = wssc->connect("https://mrccc.chart.com.sg:5100");
+    if (id !=-1)  std::cout << "> Created connection with id " << id << std::endl;
+  }
+    // void wss_client(
+    //   const rmf_fleet_msgs::msg::FleetState::SharedPtr msg
+    // )
+    // {
+      // c = std::weak_ptr<Connections>(connections);
+
+      // if (msg->name != fleet_name)
+      // return;
+
+      // const auto connections = c.lock();
+      // if (!connections)
+      // return;
+
+      // for (const auto& state : msg->robots)
+      // {
+      //     const auto insertion = connections->robots.insert({state.name, nullptr});
+      //     const bool new_robot = insertion.second;
+      //     if (new_robot)
+      //     {
+      //         // We have not seen this robot before, so let's add it to the fleet.
+      //         connections->add_robot(fleet_name, state);
+      //     }
+
+      //     const auto& command = insertion.first->second;
+      //     if (command)
+      //     {
+      //         // We are ready to command this robot, so let's update its state
+      //         command->update_state(state);
+      //     }
+      // }
+    // };
+
+  /// API for connection to WSS client
+  std::shared_ptr<websocket_endpoint> wssc;
+
   /// The API for adding new robots to the adapter
   rmf_fleet_adapter::agv::FleetUpdateHandlePtr fleet;
 
@@ -1083,42 +1087,6 @@ std::shared_ptr<Connections> make_fleet(
   connections->mode_request_pub = node->create_publisher<
       rmf_fleet_msgs::msg::ModeRequest>(
         rmf_fleet_adapter::ModeRequestTopicName, rclcpp::SystemDefaultsQoS());
-
-  // MRCCC -> Fleet state publisher
-  // connections->fleet_state_pub = node->create_publisher<rmf_fleet_msgs::msg::FleetState>("", rclcpp::SystemDefaultsQoS(), someFunc())
-
-  // connections->fleet_state_sub = node->create_subscription<
-  //     rmf_fleet_msgs::msg::FleetState>(
-  //       rmf_fleet_adapter::FleetStateTopicName,
-  //       rclcpp::SystemDefaultsQoS(),
-  //       [c = std::weak_ptr<Connections>(connections), fleet_name](
-  //       const rmf_fleet_msgs::msg::FleetState::SharedPtr msg)
-  // {
-  //   if (msg->name != fleet_name)
-  //     return;
-
-  //   const auto connections = c.lock();
-  //   if (!connections)
-  //     return;
-
-  //   for (const auto& state : msg->robots)
-  //   {
-  //     const auto insertion = connections->robots.insert({state.name, nullptr});
-  //     const bool new_robot = insertion.second;
-  //     if (new_robot)
-  //     {
-  //       // We have not seen this robot before, so let's add it to the fleet.
-  //       connections->add_robot(fleet_name, state);
-  //     }
-
-  //     const auto& command = insertion.first->second;
-  //     if (command)
-  //     {
-  //       // We are ready to command this robot, so let's update its state
-  //       command->update_state(state);
-  //     }
-  //   }
-  // });
 
   const std::string lift_clearance_srv =
       node->declare_parameter<std::string>(

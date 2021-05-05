@@ -250,7 +250,6 @@ public:
     //RCLCPP_INFO(_node->get_logger(),"i am in path request pub");
     //i2r_mission_gen.line_following(1);
 
-
     //example of implementing i2r_driver func
     // i2r_driver::send_i2r_docking_mission(_node, _current_path_request.task_id);
     i2r_driver::send_i2r_line_following_mission(_node, 
@@ -622,47 +621,45 @@ using FleetDriverRobotCommandHandlePtr =
 /// This is an RAII class that keeps the connections to the fleet driver alive.
 struct Connections : public std::enable_shared_from_this<Connections>
 {
+  /// API for connection to WSS client
+  std::shared_ptr<websocket_endpoint> wssc = std::make_shared<websocket_endpoint>();
 
-  Connections()
+  // Function for WSS client to initialise the connection
+  void wss_client(
+    const std::shared_ptr<websocket_endpoint>& wssc
+    // const rmf_fleet_msgs::msg::FleetState::SharedPtr msg
+  )
   {
-    wssc = std::make_shared<websocket_endpoint>();
     int id = wssc->connect("https://mrccc.chart.com.sg:5100");
     if (id !=-1)  std::cout << "> Created connection with id " << id << std::endl;
-  }
-    // void wss_client(
-    //   const rmf_fleet_msgs::msg::FleetState::SharedPtr msg
-    // )
+
+    // c = std::weak_ptr<Connections>(connections);
+
+    // if (msg->name != fleet_name)
+    // return;
+
+    // const auto connections = c.lock();
+    // if (!connections)
+    // return;
+
+    // for (const auto& state : msg->robots)
     // {
-      // c = std::weak_ptr<Connections>(connections);
+    //     const auto insertion = connections->robots.insert({state.name, nullptr});
+    //     const bool new_robot = insertion.second;
+    //     if (new_robot)
+    //     {
+    //         // We have not seen this robot before, so let's add it to the fleet.
+    //         connections->add_robot(fleet_name, state);
+    //     }
 
-      // if (msg->name != fleet_name)
-      // return;
-
-      // const auto connections = c.lock();
-      // if (!connections)
-      // return;
-
-      // for (const auto& state : msg->robots)
-      // {
-      //     const auto insertion = connections->robots.insert({state.name, nullptr});
-      //     const bool new_robot = insertion.second;
-      //     if (new_robot)
-      //     {
-      //         // We have not seen this robot before, so let's add it to the fleet.
-      //         connections->add_robot(fleet_name, state);
-      //     }
-
-      //     const auto& command = insertion.first->second;
-      //     if (command)
-      //     {
-      //         // We are ready to command this robot, so let's update its state
-      //         command->update_state(state);
-      //     }
-      // }
-    // };
-
-  /// API for connection to WSS client
-  std::shared_ptr<websocket_endpoint> wssc;
+    //     const auto& command = insertion.first->second;
+    //     if (command)
+    //     {
+    //         // We are ready to command this robot, so let's update its state
+    //         command->update_state(state);
+    //     }
+    // }
+  }
 
   /// The API for adding new robots to the adapter
   rmf_fleet_adapter::agv::FleetUpdateHandlePtr fleet;

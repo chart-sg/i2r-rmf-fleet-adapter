@@ -42,7 +42,9 @@ install(
   DESTINATION lib/${PROJECT_NAME})
 
 install(
-    DIRECTORY launch
+    DIRECTORY 
+      launch
+      map
     DESTINATION share/${PROJECT_NAME}
   )
   

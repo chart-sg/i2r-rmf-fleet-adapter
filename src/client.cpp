@@ -70,17 +70,10 @@ void connection_metadata::on_close(client * c, websocketpp::connection_hdl hdl) 
 }
 
 void connection_metadata::on_message(websocketpp::connection_hdl, client::message_ptr msg) {
-    //std::cout <<  msg->get_payload() << std::endl;
-    // if (msg->get_opcode() == websocketpp::frame::opcode::text) {
-    //     m_messages.push_back("<< " + msg->get_payload());
-    // } else {
-    //     m_messages.push_back("<< " + websocketpp::utility::to_hex(msg->get_payload()));
-    // }
-    // std::cout<<"on_message"<<std::endl;
-    // std::cout<<msg->get_payload()<<std::endl;
-    // c = std::weak_ptr<Connections>(connections);
-    const auto& fs = mrccc_utils::feedback_parser::RobotStateUpdate(msg->get_payload());
-    // wss_client(fs);
+    // const auto& connection = 
+    const auto fs_msg = 
+        std::make_shared<rmf_fleet_msgs::msg::FleetState>
+        (mrccc_utils::feedback_parser::RobotStateUpdate(msg->get_payload()));
 }
 
 int websocket_endpoint::connect(std::string const & uri) {
@@ -171,6 +164,7 @@ connection_metadata::ptr websocket_endpoint::get_metadata(int id) const{
     }
 }
 
+//// For testing
 // int main() {
 //     bool done = false;
 //     std::string input;

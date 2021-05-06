@@ -59,6 +59,10 @@ public:
     }
     std::vector<std::string> m_messages;
 
+    // Pass the fleet state pointer to connection_metadata to hold
+    rmf_fleet_msgs::msg::FleetState::SharedPtr fs_ptr;
+    void pass_fleet_state_ptr(const rmf_fleet_msgs::msg::FleetState::SharedPtr &_fs_ptr);
+
 private:
     int m_id;
     websocketpp::connection_hdl m_hdl;
@@ -111,6 +115,10 @@ public:
     void send(int id, std::string message);
 
     connection_metadata::ptr get_metadata(int id) const;
+
+    // Pass the fleet state pointer to connection_metadata to hold
+    void pass_fleet_state_ptr(const rmf_fleet_msgs::msg::FleetState::SharedPtr &_fs_ptr);
+
 private:
     typedef std::map<int,connection_metadata::ptr> con_list;
 

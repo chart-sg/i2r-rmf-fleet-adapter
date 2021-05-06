@@ -608,10 +608,12 @@ struct Connections : public std::enable_shared_from_this<Connections>
 {
   ~Connections()
   {
-    wssc->close(0, websocketpp::close::status::normal, "Connection destructor called"); // Connection defaults to 0 for now
+    wssc->close(0, websocketpp::close::status::normal, "Connection destructor called"); 
+    // Connection defaults to 0 for now
   }
 
   /// API for connection to WSS client
+  rmf_fleet_msgs::msg::FleetState::SharedPtr fs_msg;
   std::shared_ptr<websocket_endpoint> wssc = std::make_shared<websocket_endpoint>();
 
   // Function for WSS client to initialise the connection
@@ -639,14 +641,17 @@ struct Connections : public std::enable_shared_from_this<Connections>
     // Using sleep for now, future work to wait for initpose success
     sleep(1);
 
-
+    /// Pass the feedback to the right places
+    // Passes fleet state pointer to wssc
+    wssc->pass_fleet_state_ptr(fs_msg);
   }
 
-void wss_client_follow_new_path(
-    const std::shared_ptr<websocket_endpoint>& wssc
-    // const rmf_fleet_msgs::msg::FleetState::SharedPtr msg
+  void wss_client_follow_new_path(
+    const std::shared_ptr<websocket_endpoint>& wssc,
+    const rmf_fleet_msgs::msg::FleetState::SharedPtr msg
   )
   {
+
     // _path_requested_time = std::chrono::steady_clock::now();
     // _path_request_pub->publish(_current_path_request);
     
@@ -663,39 +668,6 @@ void wss_client_follow_new_path(
     //   _current_path_request.path); //rmf_fleet_msgs.location
   }
 
-  void wss_client_listener(
-    const std::shared_ptr<websocket_endpoint>& wssc
-    // const rmf_fleet_msgs::msg::FleetState::SharedPtr msg
-  )
-  {
-    /// Pass the feedback to the right places
-    const auto c = weak_from_this();
-
-    // if (msg->name != fleet_name)
-    // return;
-
-    const auto connections = c.lock();
-    if (!this)
-    return;
-
-    // for (const auto& state : msg->robots)
-    // {
-    //     const auto insertion = connections->robots.insert({state.name, nullptr});
-    //     const bool new_robot = insertion.second;
-    //     if (new_robot)
-    //     {
-    //         // We have not seen this robot before, so let's add it to the fleet.
-    //         // this->add_robot(fleet_name, state);
-    //     }
-
-    //     const auto& command = insertion.first->second;
-    //     if (command)
-    //     {
-    //         // We are ready to command this robot, so let's update its state
-    //         command->update_state(state);
-    //     }
-    // }
-  }
 
   /// The API for adding new robots to the adapter
   rmf_fleet_adapter::agv::FleetUpdateHandlePtr fleet;
@@ -938,7 +910,7 @@ std::shared_ptr<Connections> make_fleet(
 
   // We disable fleet state publishing for this fleet adapter because we expect
   // the fleet drivers to publish these messages.
-  connections->fleet->fleet_state_publish_period(std::nullopt); 
+  connections->fleet->fleet_state_publish_period(std::nullopt);//rmf_traffic::Duration)1); 
   
   connections->closed_lanes_pub =
     adapter->node()->create_publisher<rmf_fleet_msgs::msg::ClosedLanes>(

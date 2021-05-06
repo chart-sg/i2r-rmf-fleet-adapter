@@ -70,10 +70,11 @@ void connection_metadata::on_close(client * c, websocketpp::connection_hdl hdl) 
 }
 
 void connection_metadata::on_message(websocketpp::connection_hdl, client::message_ptr msg) {
-    // const auto& connection = 
-    const auto fs_msg = 
-        std::make_shared<rmf_fleet_msgs::msg::FleetState>
+    const auto s = std::make_shared<rmf_fleet_msgs::msg::FleetState>
         (mrccc_utils::feedback_parser::RobotStateUpdate(msg->get_payload()));
+    
+    fs_ptr = s;
+
 }
 
 int websocket_endpoint::connect(std::string const & uri) {
@@ -121,6 +122,19 @@ int websocket_endpoint::connect(std::string const & uri) {
 
     return new_id;
 }
+
+void connection_metadata::pass_fleet_state_ptr(
+    const rmf_fleet_msgs::msg::FleetState::SharedPtr &_fs_ptr)
+{
+    fs_ptr = _fs_ptr;
+}
+
+void websocket_endpoint::pass_fleet_state_ptr(
+    const rmf_fleet_msgs::msg::FleetState::SharedPtr &fs_ptr)
+{
+    m_connection_list[0] ->pass_fleet_state_ptr(fs_ptr);
+}
+
 
 void websocket_endpoint::close(int id, websocketpp::close::status::value code, std::string reason) {
     websocketpp::lib::error_code ec;

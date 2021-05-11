@@ -58,7 +58,7 @@
 
 #include <Eigen/Geometry>
 #include <unordered_set>
-
+#include <future>
 
 //==============================================================================
 rmf_fleet_adapter::agv::RobotUpdateHandle::Unstable::Decision
@@ -613,37 +613,30 @@ struct Connections : public std::enable_shared_from_this<Connections>
   }
 
   /// API for connection to WSS client
-  rmf_fleet_msgs::msg::FleetState::SharedPtr fs_msg;
-  std::shared_ptr<websocket_endpoint> wssc = std::make_shared<websocket_endpoint>();
+  // rmf_fleet_msgs::msg::FleetState::SharedPtr fs_msg;
+  const std::shared_ptr<websocket_endpoint> wssc = std::make_shared<websocket_endpoint>();
 
   // Function for WSS client to initialise the connection
-  void wss_client_init(
-    const std::shared_ptr<websocket_endpoint>& wssc
-    // const rmf_fleet_msgs::msg::FleetState::SharedPtr msg
-  )
+  void wss_client_init()
   {
-    // Connect to i2r robot
-    int id = this->wssc->connect("https://mrccc.chart.com.sg:5100");
+    // Connect to i2r robot    
+    int id = wssc->connect("https://mrccc.chart.com.sg:5100");
     if (id !=-1)  std::cout << "> Created connection with id " << id << std::endl;
     
     // Using sleep for now, future work to wait for connection created success
     sleep(1); 
     std::string idme_cmd = mrccc_utils::mission_gen::identifyMe();
     std::cout << "Identify me!" << std::endl;
-    this->wssc->send(id, idme_cmd);
+    wssc->send(id, idme_cmd);
 
     // Using sleep for now, future work to wait for identify me success
     sleep(1);
     std::string initpose_cmd = mrccc_utils::mission_gen::initRobotPose();
     std::cout << "Initialise pose!" << std::endl;
-    this->wssc->send(id, initpose_cmd);
+    wssc->send(id, initpose_cmd);
 
     // Using sleep for now, future work to wait for initpose success
     sleep(1);
-
-    /// Pass the feedback to the right places
-    // Passes fleet state pointer to wssc
-    wssc->pass_fleet_state_ptr(fs_msg);
   }
 
   void wss_client_follow_new_path(
@@ -668,6 +661,40 @@ struct Connections : public std::enable_shared_from_this<Connections>
     //   _current_path_request.path); //rmf_fleet_msgs.location
   }
 
+  void wss_client_feedback()
+  {
+    /// Pass the feedback to the right places
+    const rmf_fleet_msgs::msg::FleetState::SharedPtr fs_msg =
+      wssc->m_connection_list[0]->fs_ptr;
+
+    const auto c = std::weak_ptr<Connections>(shared_from_this());
+    std::string fleet_name = "magni";
+    
+    if (fs_msg->name != fleet_name)
+      return;
+
+    const auto connections = c.lock();
+    if (!connections)
+      return;
+
+    for (const auto& state : fs_msg->robots)
+    {
+      const auto insertion = connections->robots.insert({state.name, nullptr});
+      const bool new_robot = insertion.second;
+      if (new_robot)
+      {
+        // We have not seen this robot before, so let's add it to the fleet.
+        connections->add_robot(fleet_name, state);
+      }
+
+      const auto& command = insertion.first->second;
+      if (command)
+      {
+        // We are ready to command this robot, so let's update its state
+        command->update_state(state);
+      }
+    }
+  }
 
   /// The API for adding new robots to the adapter
   rmf_fleet_adapter::agv::FleetUpdateHandlePtr fleet;
@@ -1103,7 +1130,7 @@ std::shared_ptr<Connections> make_fleet(
           lift_clearance_srv);
   }
 
-  connections->wss_client_init(connections->wssc);
+  connections->wss_client_init();
 
   return connections;
 }
@@ -1119,6 +1146,9 @@ int main(int argc, char* argv[])
   const auto fleet_connections = make_fleet(adapter);
   if (!fleet_connections)
     return 1;
+  auto fleetstate_feedback = std::async(std::launch::async, 
+    &Connections::wss_client_feedback, fleet_connections);
+
   RCLCPP_INFO(adapter->node()->get_logger(), "Starting Fleet Adapter");
 
   // Start running the adapter and wait until it gets stopped by SIGINT

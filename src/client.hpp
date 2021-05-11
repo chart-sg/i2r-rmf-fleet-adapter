@@ -59,9 +59,7 @@ public:
     }
     std::vector<std::string> m_messages;
 
-    // Pass the fleet state pointer to connection_metadata to hold
     rmf_fleet_msgs::msg::FleetState::SharedPtr fs_ptr;
-    void pass_fleet_state_ptr(const rmf_fleet_msgs::msg::FleetState::SharedPtr &_fs_ptr);
 
 private:
     int m_id;
@@ -117,14 +115,26 @@ public:
     connection_metadata::ptr get_metadata(int id) const;
 
     // Pass the fleet state pointer to connection_metadata to hold
-    void pass_fleet_state_ptr(const rmf_fleet_msgs::msg::FleetState::SharedPtr &_fs_ptr);
+    // void pass_fleet_state_ptr(const rmf_fleet_msgs::msg::FleetState::SharedPtr &_fs_ptr);
+    // Pass the fleet state pointer to connection_metadata to hold
+    rmf_fleet_msgs::msg::FleetState::SharedPtr fs_ptr;
+    // fs_ptr = m_connection_list[0]->fs_ptr; should be ran
+    // When the process uses fleetstate
+
+    typedef std::map<int,connection_metadata::ptr> con_list;
+    con_list m_connection_list;
 
 private:
-    typedef std::map<int,connection_metadata::ptr> con_list;
 
     client m_endpoint;
     websocketpp::lib::shared_ptr<websocketpp::lib::thread> m_thread;
 
-    con_list m_connection_list;
     int m_next_id;
 };
+
+/// Web socket client implementation
+// class WSSC : public std::enable_shared_from_this<WSSC>
+// {
+//     public:
+//     rmf_fleet_msgs::msg::FleetState::WeakPtr fs_ptr;
+// }

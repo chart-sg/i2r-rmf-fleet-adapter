@@ -10,7 +10,7 @@ const std::string TABLE_NAME[TABLE_LEN] = {"Code Blue", "Code Red", "Resume", "F
 
 // interim data in place of RMF waypoints
 // Implementation should follow `void follow_new_path` in main.cpp [line 187]
-struct position {float x;float y;float yaw;};
+// struct position {float x;float y;float yaw;};
 // std::vector<position> Sample = {{14.7, -0.21, -0.99999}, {12, -0.21, -0.99999}};
 
 ///////////////////////////////////////////////////////////////////////////
@@ -137,7 +137,7 @@ Json::Value param_docking() {
     return dock;
 }
 
-std::string Mission_Data (std::vector<rmf_fleet_msgs::msg::Location> &waypoint) {
+std::string Mission_Data (const std::vector<rmf_fleet_msgs::msg::Location> &waypoint) {
     Json::Value root;
     Json::Value arr(Json::arrayValue);
     root["all_goals"] = arr;
@@ -158,7 +158,7 @@ std::string Mission_Data (std::vector<rmf_fleet_msgs::msg::Location> &waypoint) 
     return s;
 } 
 
-Json::Value Mission(int mission_type, std::vector<rmf_fleet_msgs::msg::Location>& waypoint) {    
+Json::Value Mission(int mission_type, const std::vector<rmf_fleet_msgs::msg::Location>& waypoint) {    
     Json::Value root;
     Json::Value arr(Json::arrayValue);
     root["description"] = "generic_line";
@@ -221,7 +221,7 @@ Json::Value cmd_header(int cmd_id, std::string name, int task_id) {
     }
 
 // Code tryout
-std::string line_following(int& task_id, std::vector<rmf_fleet_msgs::msg::Location> &waypoint) {
+std::string line_following(const int& task_id,  const std::vector<rmf_fleet_msgs::msg::Location> &waypoint) {
     Json::Value root;
     Json::Value arr(Json::arrayValue);
     Json::StreamWriterBuilder builder;

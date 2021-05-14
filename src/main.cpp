@@ -152,8 +152,6 @@ class FleetDriverRobotCommandHandle
     : public rmf_fleet_adapter::agv::RobotCommandHandle
 {
 public:
-
-  //Json_mission i2r_mission_gen;
   
   using PathRequestPub =
       rclcpp::Publisher<rmf_fleet_msgs::msg::PathRequest>::SharedPtr;
@@ -207,14 +205,10 @@ public:
     _current_path_request.task_id = std::to_string(++_current_task_id);
     _current_path_request.path.clear();
 
-    // std::vector<rmf_fleet_msgs::msg::Location> to_i2r_waypoint; //kj
-
     for (const auto& wp : waypoints)
     {
       rmf_fleet_msgs::msg::Location location;
       const Eigen::Vector3d p = wp.position();
-
-      // rmf_fleet_msgs::msg::Location _to_i2r_waypoint; //kj
 
       location.t = rmf_traffic_ros2::convert(wp.time());
       location.x = p.x();
@@ -231,16 +225,10 @@ public:
       }
 
       _current_path_request.path.emplace_back(std::move(location));
-
-      //transform_rmf_to_i2r(location, _to_i2r_waypoint); //kj, dont transform here
-      
-      //i2r_driver::transform_rmf_to_i2r(_node, location, _to_i2r_waypoint); 
-      
-      //to_i2r_waypoint.push_back(_to_i2r_waypoint); //kj, dont transform here
-      // to_i2r_waypoint.push_back(location); //kj
-      
     }
-    wss_client_follow_new_path();
+    i2r_driver::send_i2r_line_following_mission(_node, 
+      _current_path_request.task_id,
+      _current_path_request.path);
   }
 
   void stop() final
@@ -637,6 +625,10 @@ struct Connections : public std::enable_shared_from_this<Connections>
 
     // Using sleep for now, future work to wait for initpose success
     sleep(1);
+  }
+
+  void wss_client_follow_new_path()
+  {
   }
 
   void wss_client_feedback()
@@ -1120,11 +1112,6 @@ std::shared_ptr<Connections> make_fleet(
   connections->wss_client_init();
 
   return connections;
-}
-
-inline void wss_client_follow_new_path()
-{
-  std::cout<<"Send"<<std::endl;
 }
 
 //==============================================================================

@@ -4,7 +4,7 @@ namespace i2r_driver {
       
 
 void send_i2r_line_following_mission(rclcpp::Node* node, std::string& task_id,
-    std::vector<rmf_fleet_msgs::msg::Location> path)
+    const std::vector<rmf_fleet_msgs::msg::Location>& path)
 {
     int _task_id = std::move(std::stoi(task_id)); 
     std::vector <rmf_fleet_msgs::msg::Location> i2r_waypoint;
@@ -18,7 +18,6 @@ void send_i2r_line_following_mission(rclcpp::Node* node, std::string& task_id,
         i2r_waypoint.emplace_back(_i2r_waypoint);
     }
     std::string s = mrccc_utils::mission_gen::line_following(_task_id, i2r_waypoint);
-    // wss send string
 }
 
 void send_i2r_docking_mission(rclcpp::Node* node, std::string task_id)

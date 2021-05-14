@@ -73,13 +73,6 @@ void connection_metadata::on_message(websocketpp::connection_hdl, client::messag
     fs_ptr = std::make_shared<rmf_fleet_msgs::msg::FleetState>
         (mrccc_utils::feedback_parser::RobotStateUpdate(msg->get_payload()));
     // if (!fs_ptr->robots.empty())
-    // {
-    //     std::cout<<"x "<<fs_ptr->robots.at(0).location.x
-    //         <<" y "<<fs_ptr->robots.at(0).location.y
-    //         <<" name "<<fs_ptr->robots.at(0).name
-    //         <<std::endl;
-    // }   
-
 }
 
 int websocket_endpoint::connect(std::string const & uri) {

@@ -240,9 +240,8 @@ public:
       // to_i2r_waypoint.push_back(location); //kj
       
     }
-    
+    wss_client_follow_new_path();
   }
-
 
   void stop() final
   {
@@ -616,11 +615,12 @@ struct Connections : public std::enable_shared_from_this<Connections>
   // rmf_fleet_msgs::msg::FleetState::SharedPtr fs_msg;
   const std::shared_ptr<websocket_endpoint> wssc = std::make_shared<websocket_endpoint>();
 
+  int id = -1;
   // Function for WSS client to initialise the connection
   void wss_client_init()
   {
     // Connect to i2r robot    
-    int id = wssc->connect("https://mrccc.chart.com.sg:5100");
+    id = wssc->connect("https://mrccc.chart.com.sg:5100");
     if (id !=-1)  std::cout << "> Created connection with id " << id << std::endl;
     
     // Using sleep for now, future work to wait for connection created success
@@ -639,33 +639,20 @@ struct Connections : public std::enable_shared_from_this<Connections>
     sleep(1);
   }
 
-  void wss_client_follow_new_path(
-    const std::shared_ptr<websocket_endpoint>& wssc,
-    const rmf_fleet_msgs::msg::FleetState::SharedPtr msg
-  )
-  {
-
-    // _path_requested_time = std::chrono::steady_clock::now();
-    // _path_request_pub->publish(_current_path_request);
-    
-    //kj
-    //1. transform to i2r robot coordinate --> [to_i2r_waypoint]
-    //2. send the transformed_wp to LF_mission_generator--> wss_mission_sender, if mission done, need to trigger path_finished_callback
-    //RCLCPP_INFO(_node->get_logger(),"i am in path request pub");
-    //i2r_mission_gen.line_following(1);
-
-    //example of implementing i2r_driver func
-    // i2r_driver::send_i2r_docking_mission(_node, _current_path_request.task_id);
-    // i2r_driver::send_i2r_line_following_mission(_node, 
-    //   _current_path_request.task_id, //string
-    //   _current_path_request.path); //rmf_fleet_msgs.location
-  }
-
   void wss_client_feedback()
   {
     /// Pass the feedback to the right places
     const rmf_fleet_msgs::msg::FleetState::SharedPtr fs_msg =
       wssc->m_connection_list[0]->fs_ptr;
+    if (!fs_msg) return;
+
+    if(fs_msg->robots.empty()) return;
+    else //For debugging
+    {
+      std::cout<<"Axolotl x y z "<<fs_msg->robots.at(0).location.x
+        <<fs_msg->robots.at(0).location.y
+        <<fs_msg->robots.at(0).location.yaw<<std::endl;
+    }
 
     const auto c = std::weak_ptr<Connections>(shared_from_this());
     std::string fleet_name = "magni";
@@ -1133,6 +1120,11 @@ std::shared_ptr<Connections> make_fleet(
   connections->wss_client_init();
 
   return connections;
+}
+
+inline void wss_client_follow_new_path()
+{
+  std::cout<<"Send"<<std::endl;
 }
 
 //==============================================================================

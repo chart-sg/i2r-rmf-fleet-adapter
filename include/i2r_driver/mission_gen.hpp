@@ -17,7 +17,8 @@ namespace mrccc_utils{
 namespace mission_gen {
 
 // std::string line_following(int task_id, std::vector<rmf_fleet_msgs::msg::Location> waypoint);
-std::string line_following(int& task_id, std::vector<rmf_fleet_msgs::msg::Location> &waypoint);
+std::string line_following(const int& task_id, 
+    const std::vector<rmf_fleet_msgs::msg::Location> &waypoint);
 
 std::string abort(int task_id);
 

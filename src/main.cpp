@@ -609,8 +609,15 @@ struct Connections : public std::enable_shared_from_this<Connections>
   {
     // Connect to i2r robot    
     id = wssc->connect("https://mrccc.chart.com.sg:5100");
+    while (id !=-1)
+    {
+      // If connection cannot be stablished, retry
+      sleep(1);
+      id = wssc->connect("https://mrccc.chart.com.sg:5100");
+      std::cout<<"Connection to I2R websocket server failed. Retrying."<<std::endl;
+    }
     if (id !=-1)  std::cout << "> Created connection with id " << id << std::endl;
-    
+  
     // Using sleep for now, future work to wait for connection created success
     sleep(1); 
     std::string idme_cmd = mrccc_utils::mission_gen::identifyMe();
@@ -625,10 +632,6 @@ struct Connections : public std::enable_shared_from_this<Connections>
 
     // Using sleep for now, future work to wait for initpose success
     sleep(1);
-  }
-
-  void wss_client_follow_new_path()
-  {
   }
 
   void wss_client_feedback()

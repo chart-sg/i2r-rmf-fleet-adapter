@@ -221,7 +221,8 @@ Json::Value cmd_header(int cmd_id, std::string name, int task_id) {
     }
 
 // Code tryout
-std::string line_following(const int& task_id,  const std::vector<rmf_fleet_msgs::msg::Location> &waypoint) {
+std::string line_following(const int& task_id,  
+    const std::vector<rmf_fleet_msgs::msg::Location> &waypoint) {
     Json::Value root;
     Json::Value arr(Json::arrayValue);
     Json::StreamWriterBuilder builder;

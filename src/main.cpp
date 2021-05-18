@@ -14,7 +14,7 @@
  * limitations under the License.
  *
 */
-#define DEBUG true
+#define RMF_DEBUG false
 
 #include "client.hpp"
 
@@ -226,9 +226,18 @@ public:
 
       _current_path_request.path.emplace_back(std::move(location));
     }
-    i2r_driver::send_i2r_line_following_mission(_node, 
-      _current_path_request.task_id,
-      _current_path_request.path);
+    if (RMF_DEBUG)
+    {
+      _path_requested_time = std::chrono::steady_clock::now();
+      _path_request_pub->publish(_current_path_request);
+    }
+    else
+    {
+      _path_requested_time = std::chrono::steady_clock::now();
+      i2r_driver::send_i2r_line_following_mission(_node, 
+        _current_path_request.task_id,
+        _current_path_request.path);
+    }
   }
 
   void stop() final
@@ -609,12 +618,19 @@ struct Connections : public std::enable_shared_from_this<Connections>
   {
     // Connect to i2r robot    
     id = wssc->connect("https://mrccc.chart.com.sg:5100");
-    while (id !=-1)
+    int tries =0;
+    while (id ==-1)
     {
       // If connection cannot be stablished, retry
+      std::cout<<"Connection to I2R websocket server failed. Retrying."<<std::endl;
       sleep(1);
       id = wssc->connect("https://mrccc.chart.com.sg:5100");
-      std::cout<<"Connection to I2R websocket server failed. Retrying."<<std::endl;
+      std::cout<<id<<std::endl;
+      if (tries == 5) 
+      {
+        throw "Connection to I2R websocket server timed out";
+      }
+      tries +=1;
     }
     if (id !=-1)  std::cout << "> Created connection with id " << id << std::endl;
   
@@ -919,7 +935,7 @@ std::shared_ptr<Connections> make_fleet(
 
   // We disable fleet state publishing for this fleet adapter because we expect
   // the fleet drivers to publish these messages.
-  connections->fleet->fleet_state_publish_period(std::nullopt);//rmf_traffic::Duration)1); 
+  connections->fleet->fleet_state_publish_period((rmf_traffic::Duration)1);//std::nullopt);//rmf_traffic::Duration)1); 
   
   connections->closed_lanes_pub =
     adapter->node()->create_publisher<rmf_fleet_msgs::msg::ClosedLanes>(
@@ -1102,6 +1118,42 @@ std::shared_ptr<Connections> make_fleet(
       rmf_fleet_msgs::msg::ModeRequest>(
         rmf_fleet_adapter::ModeRequestTopicName, rclcpp::SystemDefaultsQoS());
 
+  if (RMF_DEBUG)
+  {
+  connections->fleet_state_sub = node->create_subscription<
+        rmf_fleet_msgs::msg::FleetState>(
+          rmf_fleet_adapter::FleetStateTopicName,
+          rclcpp::SystemDefaultsQoS(),
+          [c = std::weak_ptr<Connections>(connections), fleet_name](
+          const rmf_fleet_msgs::msg::FleetState::SharedPtr msg)
+    {
+      if (msg->name != fleet_name)
+        return;
+
+      const auto connections = c.lock();
+      if (!connections)
+        return;
+
+      for (const auto& state : msg->robots)
+      {
+        const auto insertion = connections->robots.insert({state.name, nullptr});
+        const bool new_robot = insertion.second;
+        if (new_robot)
+        {
+          // We have not seen this robot before, so let's add it to the fleet.
+          connections->add_robot(fleet_name, state);
+        }
+
+        const auto& command = insertion.first->second;
+        if (command)
+        {
+          // We are ready to command this robot, so let's update its state
+          command->update_state(state);
+        }
+      }
+    });
+  }
+
   const std::string lift_clearance_srv =
       node->declare_parameter<std::string>(
         "experimental_lift_watchdog_service", "");
@@ -1112,7 +1164,7 @@ std::shared_ptr<Connections> make_fleet(
           lift_clearance_srv);
   }
 
-  connections->wss_client_init();
+  if (!RMF_DEBUG) connections->wss_client_init();
 
   return connections;
 }
@@ -1128,9 +1180,12 @@ int main(int argc, char* argv[])
   const auto fleet_connections = make_fleet(adapter);
   if (!fleet_connections)
     return 1;
-  auto fleetstate_feedback = std::async(std::launch::async, 
-    &Connections::wss_client_feedback, fleet_connections);
 
+  if (!RMF_DEBUG)
+  {
+    auto fleetstate_feedback = std::async(std::launch::async, 
+      &Connections::wss_client_feedback, fleet_connections);
+  }
   RCLCPP_INFO(adapter->node()->get_logger(), "Starting Fleet Adapter");
 
   // Start running the adapter and wait until it gets stopped by SIGINT

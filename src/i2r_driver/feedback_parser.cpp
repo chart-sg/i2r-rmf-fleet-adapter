@@ -40,7 +40,9 @@ rmf_fleet_msgs::msg::FleetState json_amclpose_to_fleetstate(Json::Value& obj, st
 {
     rmf_fleet_msgs::msg::RobotState _robot_state;
 
+    std::cout<<"Step1"<<std::endl;
     std::cout<<str<<std::endl;
+    std::cout<<std::endl;
 
     #ifdef TROUBLESHOOT 
     std::cout<<"ori_w"<<obj["payload"]["pose"]["pose"]["orientation"]["w"].asFloat()<<std::endl;
@@ -128,14 +130,9 @@ rmf_fleet_msgs::msg::FleetState RobotStateUpdate(std::string str)
     case kStatusAMCLPose:
     {
         rmf_fleet_msgs::msg::FleetState fs;
-        std::cout<<"kStatusAMCLPose"<<std::endl;
+        std::cout<<"kStatusAMCLPose received"<<std::endl;
         fs = json_amclpose_to_fleetstate(obj, str, fs);
-        std::cout<<"FleetState name "<<fs.name<<std::endl;
-        std::cout<<"Mission id"<<fs.robots.at(0).task_id<<std::endl;
-        
-        std::cout<<"FleetState robot x = "<<fs.robots.at(0).location.x;
-        std::cout<<" y = "<<fs.robots.at(0).location.y;
-        std::cout<<" z = "<<fs.robots.at(0).location.yaw<<std::endl;
+
         return fs;
     }
     case kStatusUnknown:

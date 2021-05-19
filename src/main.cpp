@@ -652,44 +652,52 @@ struct Connections : public std::enable_shared_from_this<Connections>
 
   void wss_client_feedback()
   {
-    /// Pass the feedback to the right places
-    const rmf_fleet_msgs::msg::FleetState::SharedPtr fs_msg =
-      wssc->m_connection_list[0]->fs_ptr;
-    if (!fs_msg) return;
 
-    if(fs_msg->robots.empty()) return;
-    else //For debugging
+    while(shared_from_this())
     {
-      std::cout<<"Axolotl x y z "<<fs_msg->robots.at(0).location.x
-        <<fs_msg->robots.at(0).location.y
-        <<fs_msg->robots.at(0).location.yaw<<std::endl;
-    }
 
-    const auto c = std::weak_ptr<Connections>(shared_from_this());
-    std::string fleet_name = "magni";
-    
-    if (fs_msg->name != fleet_name)
-      return;
+      std::this_thread::sleep_for(std::chrono::milliseconds(200) );
+      
+      /// Pass the feedback to the right places
+      const rmf_fleet_msgs::msg::FleetState::SharedPtr fs_msg =
+        wssc->m_connection_list[0]->fs_ptr;
+      if (!fs_msg) return;
 
-    const auto connections = c.lock();
-    if (!connections)
-      return;
-
-    for (const auto& state : fs_msg->robots)
-    {
-      const auto insertion = connections->robots.insert({state.name, nullptr});
-      const bool new_robot = insertion.second;
-      if (new_robot)
+      if (!fs_msg->robots.empty())
       {
-        // We have not seen this robot before, so let's add it to the fleet.
-        connections->add_robot(fleet_name, state);
+          std::cout<<"Step3"<<std::endl;
+          std::cout<<fs_msg->robots.at(0).location.x<<" "<<
+              fs_msg->robots.at(0).location.y<<" "<<
+              fs_msg->robots.at(0).location.yaw<<std::endl;
+          std::cout<<std::endl;
       }
 
-      const auto& command = insertion.first->second;
-      if (command)
+      const auto c = std::weak_ptr<Connections>(shared_from_this());
+      std::string fleet_name = "magni";
+      
+      if (fs_msg->name != fleet_name)
+        return;
+
+      const auto connections = c.lock();
+      if (!connections)
+        return;
+
+      for (const auto& state : fs_msg->robots)
       {
-        // We are ready to command this robot, so let's update its state
-        command->update_state(state);
+        const auto insertion = connections->robots.insert({state.name, nullptr});
+        const bool new_robot = insertion.second;
+        if (new_robot)
+        {
+          // We have not seen this robot before, so let's add it to the fleet.
+          connections->add_robot(fleet_name, state);
+        }
+
+        const auto& command = insertion.first->second;
+        if (command)
+        {
+          // We are ready to command this robot, so let's update its state
+          command->update_state(state);
+        }
       }
     }
   }
@@ -881,9 +889,6 @@ std::shared_ptr<Connections> make_fleet(
 
     return nullptr;
   }
-
-
-  //kj
   
   const std::string map_coordinate_transformation_param_name = "map_coordinate_transformation";
   const std::vector<double> map_coordinate_transformation =
@@ -1184,7 +1189,7 @@ int main(int argc, char* argv[])
   if (!RMF_DEBUG)
   {
     auto fleetstate_feedback = std::async(std::launch::async, 
-      &Connections::wss_client_feedback, fleet_connections);
+      &Connections::wss_client_feedback, fleet_connections); 
   }
   RCLCPP_INFO(adapter->node()->get_logger(), "Starting Fleet Adapter");
 

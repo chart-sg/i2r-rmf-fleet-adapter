@@ -70,14 +70,15 @@ void connection_metadata::on_close(client * c, websocketpp::connection_hdl hdl) 
 }
 
 void connection_metadata::on_message(websocketpp::connection_hdl, client::message_ptr msg) {
-    fs_ptr = std::make_shared<rmf_fleet_msgs::msg::FleetState>
-        (mrccc_utils::feedback_parser::RobotStateUpdate(msg->get_payload()));
-    if (!fs_ptr->robots.empty())
+    mrccc_utils::feedback_parser::RobotStateUpdate(msg->get_payload(), fs_msg);
+                
+    if (!fs_msg.robots.empty())
     {
-        std::cout<<"Step2"<<std::endl;
-        std::cout<<fs_ptr->robots.at(0).location.x<<" "<<
-            fs_ptr->robots.at(0).location.y<<" "<<
-            fs_ptr->robots.at(0).location.yaw<<std::endl;
+        std::cout<<"Step2 fs_msg at address"
+            <<&fs_msg<<std::endl;
+        std::cout<<fs_msg.robots.at(0).location.x<<" "<<
+            fs_msg.robots.at(0).location.y<<" "<<
+            fs_msg.robots.at(0).location.yaw<<std::endl;
         std::cout<<std::endl;
     }
 }

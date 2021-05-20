@@ -59,7 +59,7 @@ public:
     }
     std::vector<std::string> m_messages;
 
-    rmf_fleet_msgs::msg::FleetState::SharedPtr fs_ptr;
+    rmf_fleet_msgs::msg::FleetState fs_msg;
 
 private:
     int m_id;
@@ -113,13 +113,6 @@ public:
     void send(int id, std::string message);
 
     connection_metadata::ptr get_metadata(int id) const;
-
-    // Pass the fleet state pointer to connection_metadata to hold
-    // void pass_fleet_state_ptr(const rmf_fleet_msgs::msg::FleetState::SharedPtr &_fs_ptr);
-    // Pass the fleet state pointer to connection_metadata to hold
-    rmf_fleet_msgs::msg::FleetState::SharedPtr fs_ptr;
-    // fs_ptr = m_connection_list[0]->fs_ptr; should be ran
-    // When the process uses fleetstate
 
     typedef std::map<int,connection_metadata::ptr> con_list;
     con_list m_connection_list;

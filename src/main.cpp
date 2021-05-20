@@ -609,7 +609,6 @@ struct Connections : public std::enable_shared_from_this<Connections>
   }
 
   /// API for connection to WSS client
-  // rmf_fleet_msgs::msg::FleetState::SharedPtr fs_msg;
   const std::shared_ptr<websocket_endpoint> wssc = std::make_shared<websocket_endpoint>();
 
   int id = -1;
@@ -652,37 +651,37 @@ struct Connections : public std::enable_shared_from_this<Connections>
 
   void wss_client_feedback()
   {
-
+    std::mutex _mtx;
     while(shared_from_this())
     {
-
+      std::unique_lock<std::mutex> lck (_mtx);
       std::this_thread::sleep_for(std::chrono::milliseconds(200) );
       
-      /// Pass the feedback to the right places
-      const rmf_fleet_msgs::msg::FleetState::SharedPtr fs_msg =
-        wssc->m_connection_list[0]->fs_ptr;
-      if (!fs_msg) return;
+      // Pass the feedback to the right places
+      rmf_fleet_msgs::msg::FleetState::SharedPtr fs_ptr =
+        std::make_shared<rmf_fleet_msgs::msg::FleetState>(
+          wssc->m_connection_list.at(0)->fs_msg);
 
-      if (!fs_msg->robots.empty())
+      if (!fs_ptr->robots.empty())
       {
-          std::cout<<"Step3"<<std::endl;
-          std::cout<<fs_msg->robots.at(0).location.x<<" "<<
-              fs_msg->robots.at(0).location.y<<" "<<
-              fs_msg->robots.at(0).location.yaw<<std::endl;
-          std::cout<<std::endl;
+        std::cout<<"Step3"<<std::endl;
+        std::cout<<fs_ptr->robots.at(0).location.x<<" "<<
+            fs_ptr->robots.at(0).location.y<<" "<<
+            fs_ptr->robots.at(0).location.yaw<<std::endl;
+        std::cout<<std::endl;
       }
-
+      
       const auto c = std::weak_ptr<Connections>(shared_from_this());
       std::string fleet_name = "magni";
       
-      if (fs_msg->name != fleet_name)
+      if (fs_ptr->name != fleet_name)
         return;
 
       const auto connections = c.lock();
       if (!connections)
         return;
 
-      for (const auto& state : fs_msg->robots)
+      for (const auto& state : fs_ptr->robots)
       {
         const auto insertion = connections->robots.insert({state.name, nullptr});
         const bool new_robot = insertion.second;
@@ -1191,6 +1190,7 @@ int main(int argc, char* argv[])
     auto fleetstate_feedback = std::async(std::launch::async, 
       &Connections::wss_client_feedback, fleet_connections); 
   }
+
   RCLCPP_INFO(adapter->node()->get_logger(), "Starting Fleet Adapter");
 
   // Start running the adapter and wait until it gets stopped by SIGINT

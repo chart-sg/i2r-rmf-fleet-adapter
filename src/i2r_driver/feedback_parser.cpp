@@ -34,25 +34,10 @@ enum StatusType
     kStatusUnknown = 254
 } status_id;
 
-rmf_fleet_msgs::msg::FleetState json_amclpose_to_fleetstate(Json::Value& obj, std::string str, 
+rmf_fleet_msgs::msg::FleetState json_amclpose_to_fleetstate(const Json::Value& obj, 
     rmf_fleet_msgs::msg::FleetState &fs)
-
 {
     rmf_fleet_msgs::msg::RobotState _robot_state;
-
-    std::cout<<"Step1"<<std::endl;
-    std::cout<<str<<std::endl;
-    std::cout<<std::endl;
-
-    #ifdef TROUBLESHOOT 
-    std::cout<<"ori_w"<<obj["payload"]["pose"]["pose"]["orientation"]["w"].asFloat()<<std::endl;
-    std::cout<<"ori_x"<<obj["payload"]["pose"]["pose"]["orientation"]["x"].asFloat()<<std::endl;
-    std::cout<<"ori_y"<<obj["payload"]["pose"]["pose"]["orientation"]["y"].asFloat()<<std::endl;
-    std::cout<<"ori_z"<<obj["payload"]["pose"]["pose"]["orientation"]["z"].asFloat()<<std::endl;
-    std::cout<<"pos_x"<<obj["payload"]["pose"]["pose"]["position"]["x"].asFloat()<<std::endl;
-    std::cout<<"pos_y"<<obj["payload"]["pose"]["pose"]["position"]["y"].asFloat()<<std::endl;
-    std::cout<<"pos_z"<<obj["payload"]["pose"]["pose"]["position"]["z"].asFloat()<<std::endl;
-    #endif
     
     // Creating quaternion class
     tf2::Quaternion q( obj["payload"]["pose"]["pose"]["orientation"]["x"].asFloat(),
@@ -80,28 +65,16 @@ rmf_fleet_msgs::msg::FleetState json_amclpose_to_fleetstate(Json::Value& obj, st
 
     _robot_state.location.index     = 0;
 
-    // _robot_state.path.emplace_back(); // FILL IN PATH REQUEST RECIEVED HERE!!
-
     fs.name               = std::string("Magni");
     fs.robots.emplace_back(_robot_state);
 
     return fs;
 }
 
-// rmf_fleet_msgs::msg::FleetState json_statuspub_to_fleetstate(Json::Value& obj)
-// {
-//     return _fleet_state;
-// }
-
-// rmf_fleet_msgs::msg::FleetState json_movebasefoot_to_fleetstate(Json::Value& obj)
-// {
-//     return _fleet_state;
-// }
-
-rmf_fleet_msgs::msg::FleetState RobotStateUpdate(std::string str)
+void RobotStateUpdate(const std::string& str, 
+    rmf_fleet_msgs::msg::FleetState& fs_msg)
 {
     Json::Value obj;
-    
     obj = string_to_json_parser(str);
     status_id = (StatusType)obj["header"]["status_id"].asInt();
 
@@ -109,46 +82,39 @@ rmf_fleet_msgs::msg::FleetState RobotStateUpdate(std::string str)
     {
     case kStatusStatusPub: // Does not have pose
     {
-        rmf_fleet_msgs::msg::FleetState fs;
-        // std::cout<<"kStatusStatusPub"<<std::endl;
+        std::cout<<"Feedback -> kStatusStatusPub"<<std::endl;
         // fs = json_statuspub_to_fleetstate(obj); 
-        return fs;
+        break;
     }
     case kStatusMoveBaseFootprint: // Cant find message type, will have to see from msg->get_payload()
      {
-        rmf_fleet_msgs::msg::FleetState fs;
-        // std::cout<<"kStatusMoveBaseFootprint"<<std::endl;
+        std::cout<<"Feedback -> kStatusMoveBaseFootprint"<<std::endl;
         // fs = json_movebasefoot_to_fleetstate(obj);
-        return fs;
+        break;
      }
     case kStatusCurrentCompletedSubMission:
     {
-        rmf_fleet_msgs::msg::FleetState fs;
-        // std::cout<<"kStatusCurrentCompletedSubMission"<<std::endl;
-        return fs;
+        std::cout<<"Feedback -> kStatusCurrentCompletedSubMission"
+            <<std::endl;
+        break;
     }
     case kStatusAMCLPose:
     {
-        rmf_fleet_msgs::msg::FleetState fs;
-        std::cout<<"kStatusAMCLPose received"<<std::endl;
-        fs = json_amclpose_to_fleetstate(obj, str, fs);
-
-        return fs;
+        std::cout<<"Feedback -> kStatusAMCLPose received"<<std::endl;
+        fs_msg = json_amclpose_to_fleetstate(obj, fs_msg);
+        break;
     }
     case kStatusUnknown:
     {
-        rmf_fleet_msgs::msg::FleetState fs;
-        std::cout<<"kStatusUnknown"<<std::endl;
-        return fs;
+        std::cout<<"Feedback -> kStatusUnknown"<<std::endl;
+        break;
     }
     default:
     {
-        rmf_fleet_msgs::msg::FleetState fs;
-        std::cout<<"default"<<std::endl;
-        return fs;
+        std::cout<<"Feedback -> Default"<<std::endl;
+        break;
     }
     }
-
 }
 
 } // feedback_parser

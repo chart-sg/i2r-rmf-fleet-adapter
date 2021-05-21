@@ -62,7 +62,7 @@ rmf_fleet_msgs::msg::FleetState json_amclpose_to_fleetstate(const Json::Value& o
     _robot_state.location.x         = obj["payload"]["pose"]["pose"]["position"]["x"].asFloat();
     _robot_state.location.y         = obj["payload"]["pose"]["pose"]["position"]["y"].asFloat();
     _robot_state.location.yaw       = q.getAngle(); 
-
+    _robot_state.location.level_name= "B1"; 
     _robot_state.location.index     = 0;
 
     fs.name               = std::string("Magni");
@@ -82,36 +82,36 @@ void RobotStateUpdate(const std::string& str,
     {
     case kStatusStatusPub: // Does not have pose
     {
-        std::cout<<"Feedback -> kStatusStatusPub"<<std::endl;
+        // std::cout<<"Feedback -> kStatusStatusPub"<<std::endl;
         // fs = json_statuspub_to_fleetstate(obj); 
         break;
     }
     case kStatusMoveBaseFootprint: // Cant find message type, will have to see from msg->get_payload()
      {
-        std::cout<<"Feedback -> kStatusMoveBaseFootprint"<<std::endl;
+        // std::cout<<"Feedback -> kStatusMoveBaseFootprint"<<std::endl;
         // fs = json_movebasefoot_to_fleetstate(obj);
         break;
      }
     case kStatusCurrentCompletedSubMission:
     {
-        std::cout<<"Feedback -> kStatusCurrentCompletedSubMission"
-            <<std::endl;
+        // std::cout<<"Feedback -> kStatusCurrentCompletedSubMission"
+            // <<std::endl;
         break;
     }
     case kStatusAMCLPose:
     {
-        std::cout<<"Feedback -> kStatusAMCLPose received"<<std::endl;
+        // std::cout<<"Feedback -> kStatusAMCLPose received"<<std::endl;
         fs_msg = json_amclpose_to_fleetstate(obj, fs_msg);
         break;
     }
     case kStatusUnknown:
     {
-        std::cout<<"Feedback -> kStatusUnknown"<<std::endl;
+        // std::cout<<"Feedback -> kStatusUnknown"<<std::endl;
         break;
     }
     default:
     {
-        std::cout<<"Feedback -> Default"<<std::endl;
+        // std::cout<<"Feedback -> Default"<<std::endl;
         break;
     }
     }

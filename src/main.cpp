@@ -652,30 +652,34 @@ struct Connections : public std::enable_shared_from_this<Connections>
   void wss_client_feedback()
   {
     std::mutex _mtx;
-    while(shared_from_this())
+    while(wssc)
     {
-      std::unique_lock<std::mutex> lck (_mtx);
       std::this_thread::sleep_for(std::chrono::milliseconds(200) );
+      std::unique_lock<std::mutex> lck (_mtx);
       
       // Pass the feedback to the right places
       rmf_fleet_msgs::msg::FleetState::SharedPtr fs_ptr =
         std::make_shared<rmf_fleet_msgs::msg::FleetState>(
           wssc->m_connection_list.at(0)->fs_msg);
 
+      // rmf_fleet_msgs::msg::FleetState fs_msg =
+      //   wssc->m_connection_list.at(0)->fs_msg;
+
       if (!fs_ptr->robots.empty())
       {
-        std::cout<<"Step3"<<std::endl;
-        std::cout<<fs_ptr->robots.at(0).location.x<<" "<<
+        // std::cout<<"Step3"<<std::endl;
+        std::cout<<"fs_msg holds "<<fs_ptr->robots.at(0).location.x<<" "<<
             fs_ptr->robots.at(0).location.y<<" "<<
             fs_ptr->robots.at(0).location.yaw<<std::endl;
-        std::cout<<std::endl;
+        // std::cout<<std::endl;
       }
       
       const auto c = std::weak_ptr<Connections>(shared_from_this());
-      std::string fleet_name = "magni";
+      std::string fleet_name = "Magni";
       
+      // std::cout<<"fs_ptr->name "<<fs_ptr->name<<std::endl;
       if (fs_ptr->name != fleet_name)
-        return;
+        continue;
 
       const auto connections = c.lock();
       if (!connections)
@@ -689,6 +693,7 @@ struct Connections : public std::enable_shared_from_this<Connections>
         {
           // We have not seen this robot before, so let's add it to the fleet.
           connections->add_robot(fleet_name, state);
+          std::cout<<"New robot added"<<std::endl;
         }
 
         const auto& command = insertion.first->second;
@@ -696,8 +701,10 @@ struct Connections : public std::enable_shared_from_this<Connections>
         {
           // We are ready to command this robot, so let's update its state
           command->update_state(state);
+          std::cout<<"Ready to command robot"<<std::endl;
         }
       }
+      std::cout<<"Ran to the end"<<std::endl;
     }
   }
 
@@ -1185,11 +1192,11 @@ int main(int argc, char* argv[])
   if (!fleet_connections)
     return 1;
 
-  if (!RMF_DEBUG)
-  {
+  // if (!RMF_DEBUG)
+  // {
     auto fleetstate_feedback = std::async(std::launch::async, 
       &Connections::wss_client_feedback, fleet_connections); 
-  }
+  // }
 
   RCLCPP_INFO(adapter->node()->get_logger(), "Starting Fleet Adapter");
 

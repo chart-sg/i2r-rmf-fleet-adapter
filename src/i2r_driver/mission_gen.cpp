@@ -342,13 +342,13 @@ std::string initRobotPose() {
     root["header"]["subcmd"] = 254;
 
     root["payload"]["pose"]["description"] = "2D Pose Estimate";
-    root["payload"]["pose"]["nav_angle_w"] = 0.707; 
+    root["payload"]["pose"]["nav_angle_w"] = 0.698886; // In real life CHART -> 0.707 
     root["payload"]["pose"]["nav_angle_x"] = 0;
     root["payload"]["pose"]["nav_angle_y"] = 0; 
-    root["payload"]["pose"]["nav_angle_z"] = -0.707;
+    root["payload"]["pose"]["nav_angle_z"] = 0.715233; //In real life CHART -> -0.707
     root["payload"]["pose"]["nav_map_name"] = "chart_map"; 
-    root["payload"]["pose"]["nav_pose_x"] = 12.78;
-    root["payload"]["pose"]["nav_pose_y"] = -1.41; 
+    root["payload"]["pose"]["nav_pose_x"] = 17.30; //In real life CHART -> 20.423;
+    root["payload"]["pose"]["nav_pose_y"] = -21.521; //In real life CHART -> -5.312; 
     root["payload"]["pose"]["nav_pose_z"] = 0;
     root["payload"]["rotate_after_initialpose"] = 0;
     Json::FastWriter print;

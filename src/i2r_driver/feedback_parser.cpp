@@ -65,7 +65,7 @@ rmf_fleet_msgs::msg::FleetState json_amclpose_to_fleetstate(const Json::Value& o
     _robot_state.location.level_name= "B1"; 
     _robot_state.location.index     = 0;
 
-    fs.name               = std::string("Magni");
+    fs.name               = std::string("tinyRobot");
     fs.robots.emplace_back(_robot_state);
 
     return fs;

@@ -166,10 +166,12 @@ public:
       std::shared_ptr<const rmf_traffic::agv::Graph> graph,
       std::shared_ptr<const rmf_traffic::agv::VehicleTraits> traits,
       PathRequestPub path_request_pub,
-      ModeRequestPub mode_request_pub)
+      ModeRequestPub mode_request_pub,
+      const std::shared_ptr<websocket_endpoint>& wssc)
     : _node(&node),
       _path_request_pub(std::move(path_request_pub)),
-      _mode_request_pub(std::move(mode_request_pub))
+      _mode_request_pub(std::move(mode_request_pub)),
+      _wssc(std::move(wssc))
   {
     _current_path_request.fleet_name = fleet_name;
     _current_path_request.robot_name = robot_name;
@@ -226,18 +228,13 @@ public:
 
       _current_path_request.path.emplace_back(std::move(location));
     }
-    if (RMF_DEBUG)
-    {
-      _path_requested_time = std::chrono::steady_clock::now();
-      _path_request_pub->publish(_current_path_request);
-    }
-    else
-    {
-      _path_requested_time = std::chrono::steady_clock::now();
-      i2r_driver::send_i2r_line_following_mission(_node, 
-        _current_path_request.task_id,
-        _current_path_request.path);
-    }
+
+    _path_requested_time = std::chrono::steady_clock::now();
+    _path_request_pub->publish(_current_path_request);
+    std::string s = i2r_driver::send_i2r_line_following_mission(_node, 
+      _current_path_request.task_id,
+      _current_path_request.path);
+    _wssc->send(0, s);
   }
 
   void stop() final
@@ -313,6 +310,10 @@ public:
     const auto& wp = _travel_info.graph->get_waypoint(*_dock_target_wp);
     const std::string wp_name = wp.name()?
           *wp.name() : std::to_string(wp.index());
+
+    std::string s = i2r_driver::send_i2r_docking_mission(_node, 
+      "Dummy Docking Id"); //Dummy args for now
+    _wssc->send(0, s);
 
     RCLCPP_INFO(
       _node->get_logger(),
@@ -571,6 +572,7 @@ private:
     std::chrono::steady_clock::now();
   RequestCompleted _dock_finished_callback;
   ModeRequestPub _mode_request_pub;
+  const std::shared_ptr<websocket_endpoint>& _wssc;
 
   uint32_t _current_task_id = 0;
 
@@ -634,19 +636,19 @@ struct Connections : public std::enable_shared_from_this<Connections>
     if (id !=-1)  std::cout << "> Created connection with id " << id << std::endl;
   
     // Using sleep for now, future work to wait for connection created success
-    sleep(1); 
+    sleep(2); 
     std::string idme_cmd = mrccc_utils::mission_gen::identifyMe();
     std::cout << "Identify me!" << std::endl;
     wssc->send(id, idme_cmd);
 
     // Using sleep for now, future work to wait for identify me success
-    sleep(1);
+    sleep(2);
     std::string initpose_cmd = mrccc_utils::mission_gen::initRobotPose();
     std::cout << "Initialise pose!" << std::endl;
     wssc->send(id, initpose_cmd);
 
     // Using sleep for now, future work to wait for initpose success
-    sleep(1);
+    sleep(2);
   }
 
   void wss_client_feedback()
@@ -665,26 +667,24 @@ struct Connections : public std::enable_shared_from_this<Connections>
       // rmf_fleet_msgs::msg::FleetState fs_msg =
       //   wssc->m_connection_list.at(0)->fs_msg;
 
-      if (!fs_ptr->robots.empty())
-      {
-        // std::cout<<"Step3"<<std::endl;
-        std::cout<<"fs_msg holds "<<fs_ptr->robots.at(0).location.x<<" "<<
-            fs_ptr->robots.at(0).location.y<<" "<<
-            fs_ptr->robots.at(0).location.yaw<<std::endl;
-        // std::cout<<std::endl;
-      }
+      // if (!fs_ptr->robots.empty())
+      // {
+      //   std::cout.precision(3);
+      //   std::cout<<std::fixed;
+      //   std::cout<<"fs_msg holds "<<fs_ptr->robots.at(0).location.x<<" "<<
+      //       fs_ptr->robots.at(0).location.y<<" "<<
+      //       fs_ptr->robots.at(0).location.yaw<<std::endl;
+      // }
       
       const auto c = std::weak_ptr<Connections>(shared_from_this());
-      std::string fleet_name = "Magni";
+      std::string fleet_name = "tinyRobot";
       
-      // std::cout<<"fs_ptr->name "<<fs_ptr->name<<std::endl;
       if (fs_ptr->name != fleet_name)
         continue;
 
       const auto connections = c.lock();
       if (!connections)
         return;
-
       for (const auto& state : fs_ptr->robots)
       {
         const auto insertion = connections->robots.insert({state.name, nullptr});
@@ -693,7 +693,6 @@ struct Connections : public std::enable_shared_from_this<Connections>
         {
           // We have not seen this robot before, so let's add it to the fleet.
           connections->add_robot(fleet_name, state);
-          std::cout<<"New robot added"<<std::endl;
         }
 
         const auto& command = insertion.first->second;
@@ -701,10 +700,8 @@ struct Connections : public std::enable_shared_from_this<Connections>
         {
           // We are ready to command this robot, so let's update its state
           command->update_state(state);
-          std::cout<<"Ready to command robot"<<std::endl;
         }
       }
-      std::cout<<"Ran to the end"<<std::endl;
     }
   }
 
@@ -758,7 +755,7 @@ struct Connections : public std::enable_shared_from_this<Connections>
     const auto& robot_name = state.name;
     const auto command = std::make_shared<FleetDriverRobotCommandHandle>(
           *adapter->node(), fleet_name, robot_name, graph, traits,
-          path_request_pub, mode_request_pub);
+          path_request_pub, mode_request_pub, wssc);
 
     const auto& l = state.location;
     const auto& starts = rmf_traffic::agv::compute_plan_starts(
@@ -1129,42 +1126,6 @@ std::shared_ptr<Connections> make_fleet(
       rmf_fleet_msgs::msg::ModeRequest>(
         rmf_fleet_adapter::ModeRequestTopicName, rclcpp::SystemDefaultsQoS());
 
-  if (RMF_DEBUG)
-  {
-  connections->fleet_state_sub = node->create_subscription<
-        rmf_fleet_msgs::msg::FleetState>(
-          rmf_fleet_adapter::FleetStateTopicName,
-          rclcpp::SystemDefaultsQoS(),
-          [c = std::weak_ptr<Connections>(connections), fleet_name](
-          const rmf_fleet_msgs::msg::FleetState::SharedPtr msg)
-    {
-      if (msg->name != fleet_name)
-        return;
-
-      const auto connections = c.lock();
-      if (!connections)
-        return;
-
-      for (const auto& state : msg->robots)
-      {
-        const auto insertion = connections->robots.insert({state.name, nullptr});
-        const bool new_robot = insertion.second;
-        if (new_robot)
-        {
-          // We have not seen this robot before, so let's add it to the fleet.
-          connections->add_robot(fleet_name, state);
-        }
-
-        const auto& command = insertion.first->second;
-        if (command)
-        {
-          // We are ready to command this robot, so let's update its state
-          command->update_state(state);
-        }
-      }
-    });
-  }
-
   const std::string lift_clearance_srv =
       node->declare_parameter<std::string>(
         "experimental_lift_watchdog_service", "");
@@ -1192,11 +1153,8 @@ int main(int argc, char* argv[])
   if (!fleet_connections)
     return 1;
 
-  // if (!RMF_DEBUG)
-  // {
-    auto fleetstate_feedback = std::async(std::launch::async, 
-      &Connections::wss_client_feedback, fleet_connections); 
-  // }
+  auto fleetstate_feedback = std::async(std::launch::async, 
+    &Connections::wss_client_feedback, fleet_connections); 
 
   RCLCPP_INFO(adapter->node()->get_logger(), "Starting Fleet Adapter");
 

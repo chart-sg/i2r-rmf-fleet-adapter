@@ -11,10 +11,10 @@
 
 namespace i2r_driver {
 
-void send_i2r_line_following_mission(rclcpp::Node* node, std::string& task_id, 
+std::string send_i2r_line_following_mission(rclcpp::Node* node, std::string& task_id, 
       const std::vector<rmf_fleet_msgs::msg::Location>& path);
 
-void send_i2r_docking_mission(rclcpp::Node* node, std::string task_id);
+std::string send_i2r_docking_mission(rclcpp::Node* node, std::string task_id);
 
 void get_map_transfomation_param(rclcpp::Node* node, 
       std::vector<double>& map_coordinate_transformation);

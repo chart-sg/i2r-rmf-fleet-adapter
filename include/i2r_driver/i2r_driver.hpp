@@ -24,6 +24,11 @@ void transform_i2r_to_rmf(
       const rmf_fleet_msgs::msg::Location& _fleet_frame_location, 
       rmf_fleet_msgs::msg::Location& _rmf_frame_location) ;
 
+void transform_i2r_to_rmf(
+      const std::vector<double>& map_coordinate_transformation,
+      const rmf_fleet_msgs::msg::Location& _fleet_frame_location, 
+      rmf_fleet_msgs::msg::Location& _rmf_frame_location) ;
+
 void transform_rmf_to_i2r(
       rclcpp::Node* node,
       const rmf_fleet_msgs::msg::Location& _rmf_frame_location, 

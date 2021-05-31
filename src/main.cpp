@@ -614,6 +614,7 @@ struct Connections : public std::enable_shared_from_this<Connections>
   const std::shared_ptr<websocket_endpoint> wssc = std::make_shared<websocket_endpoint>();
 
   int id = -1;
+  std::vector<double> map_coordinate_transformation;
   // Function for WSS client to initialise the connection
   void wss_client_init()
   {
@@ -634,7 +635,7 @@ struct Connections : public std::enable_shared_from_this<Connections>
       tries +=1;
     }
     if (id !=-1)  std::cout << "> Created connection with id " << id << std::endl;
-  
+
     // Using sleep for now, future work to wait for connection created success
     sleep(2); 
     std::string idme_cmd = mrccc_utils::mission_gen::identifyMe();
@@ -644,38 +645,78 @@ struct Connections : public std::enable_shared_from_this<Connections>
     // Using sleep for now, future work to wait for identify me success
     sleep(2);
     std::string initpose_cmd = mrccc_utils::mission_gen::initRobotPose();
-    std::cout << "Initialise pose!" << std::endl;
     wssc->send(id, initpose_cmd);
-
-    // Using sleep for now, future work to wait for initpose success
+    std::cout << "Init me!" << std::endl;
     sleep(2);
+
+    rmf_fleet_msgs::msg::FleetState::SharedPtr fs_ptr =
+        std::make_shared<rmf_fleet_msgs::msg::FleetState>(
+          wssc->m_connection_list.at(0)->fs_msg);
+
+    // float x = 17.30;
+    // float y = -21.521;
+
+    auto is_within_range = 
+      [&](double input, double val, double range = 0.3) -> bool
+    {
+        float high = val + range;
+        float low = val - range;
+        return  (low < input) && (input < high);
+    };    
+
+    // For now, if fs_ptr does not have anythin by this point, return
+    if (fs_ptr->robots.empty()) 
+    {
+      std::cout<<"fs_ptr does not have anything by this point"<<std::endl;
+      return;
+    }
+
+    while( !(is_within_range(fs_ptr->robots.at(0).location.x, 13.25) &&
+          is_within_range(fs_ptr->robots.at(0).location.y, -1.1))
+          )
+    {
+      if (is_within_range(fs_ptr->robots.at(0).location.x, 13.25))
+        std::cout<<"X is true";
+      else
+        std::cout<<"X is flase";
+      if (is_within_range(fs_ptr->robots.at(0).location.y, -1.1))
+        std::cout<<"Y is true";
+      else
+        std::cout<<"Y is false";
+
+      std::cout << "Init me!" << std::endl;
+      wssc->send(id, initpose_cmd);
+      std::this_thread::sleep_for(std::chrono::seconds(2) );
+    }
+
+    adapter->node().get()->get_parameter("map_coordinate_transformation",
+      map_coordinate_transformation);
+    wssc->m_connection_list.at(0)->map_coordinate_transformation_ptr = 
+      std::make_unique<std::vector<double>>(map_coordinate_transformation);
   }
 
   void wss_client_feedback()
   {
     std::mutex _mtx;
+
+    rmf_fleet_msgs::msg::FleetState::SharedPtr fs_ptr =
+      std::make_shared<rmf_fleet_msgs::msg::FleetState>(
+        wssc->m_connection_list.at(0)->fs_msg);
+
     while(wssc)
     {
       std::this_thread::sleep_for(std::chrono::milliseconds(200) );
-      std::unique_lock<std::mutex> lck (_mtx);
-      
-      // Pass the feedback to the right places
-      rmf_fleet_msgs::msg::FleetState::SharedPtr fs_ptr =
-        std::make_shared<rmf_fleet_msgs::msg::FleetState>(
-          wssc->m_connection_list.at(0)->fs_msg);
+      const std::lock_guard<std::mutex> lck (_mtx);
+    
+      if (!fs_ptr->robots.empty())
+      {
+        std::cout.precision(3);
+        std::cout<<std::fixed;
+        std::cout<<"fs_msg holds "<<fs_ptr->robots.at(0).location.x<<" "<<
+            fs_ptr->robots.at(0).location.y<<" "<<
+            fs_ptr->robots.at(0).location.yaw<<std::endl;
+      }
 
-      // rmf_fleet_msgs::msg::FleetState fs_msg =
-      //   wssc->m_connection_list.at(0)->fs_msg;
-
-      // if (!fs_ptr->robots.empty())
-      // {
-      //   std::cout.precision(3);
-      //   std::cout<<std::fixed;
-      //   std::cout<<"fs_msg holds "<<fs_ptr->robots.at(0).location.x<<" "<<
-      //       fs_ptr->robots.at(0).location.y<<" "<<
-      //       fs_ptr->robots.at(0).location.yaw<<std::endl;
-      // }
-      
       const auto c = std::weak_ptr<Connections>(shared_from_this());
       std::string fleet_name = "tinyRobot";
       
@@ -702,6 +743,8 @@ struct Connections : public std::enable_shared_from_this<Connections>
           command->update_state(state);
         }
       }
+      std::cout<<"Spinning feedback"<<std::endl;
+      // Need to put in a condition to kill this when main dies
     }
   }
 

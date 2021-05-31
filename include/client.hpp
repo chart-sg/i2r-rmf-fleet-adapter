@@ -60,8 +60,11 @@ public:
     std::vector<std::string> m_messages;
 
     rmf_fleet_msgs::msg::FleetState fs_msg;
-
+    std::unique_ptr<std::vector<double>>  map_coordinate_transformation_ptr;
+    
 private:
+    std::mutex _mtx;
+
     int m_id;
     websocketpp::connection_hdl m_hdl;
     std::string m_status;
@@ -124,10 +127,3 @@ private:
 
     int m_next_id;
 };
-
-/// Web socket client implementation
-// class WSSC : public std::enable_shared_from_this<WSSC>
-// {
-//     public:
-//     rmf_fleet_msgs::msg::FleetState::WeakPtr fs_ptr;
-// }

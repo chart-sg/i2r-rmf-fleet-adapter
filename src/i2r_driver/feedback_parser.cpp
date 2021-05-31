@@ -34,9 +34,13 @@ enum StatusType
     kStatusUnknown = 254
 } status_id;
 
-rmf_fleet_msgs::msg::FleetState json_amclpose_to_fleetstate(const Json::Value& obj, 
-    rmf_fleet_msgs::msg::FleetState &fs)
+rmf_fleet_msgs::msg::FleetState json_amclpose_to_fleetstate(
+    const Json::Value& obj, 
+    rmf_fleet_msgs::msg::FleetState &fs,
+    std::string str)
 {
+    std::cout<<str<<std::endl;
+    // Implement move constructor here
     rmf_fleet_msgs::msg::RobotState _robot_state;
     
     // Creating quaternion class
@@ -71,7 +75,8 @@ rmf_fleet_msgs::msg::FleetState json_amclpose_to_fleetstate(const Json::Value& o
     return fs;
 }
 
-void RobotStateUpdate(const std::string& str, 
+void RobotStateUpdate(
+    const std::string& str, 
     rmf_fleet_msgs::msg::FleetState& fs_msg)
 {
     Json::Value obj;
@@ -100,8 +105,10 @@ void RobotStateUpdate(const std::string& str,
     }
     case kStatusAMCLPose:
     {
-        // std::cout<<"Feedback -> kStatusAMCLPose received"<<std::endl;
-        fs_msg = json_amclpose_to_fleetstate(obj, fs_msg);
+        fs_msg = json_amclpose_to_fleetstate(
+            obj, 
+            fs_msg, 
+            str);
         break;
     }
     case kStatusUnknown:

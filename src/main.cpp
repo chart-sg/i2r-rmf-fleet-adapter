@@ -636,13 +636,19 @@ struct Connections : public std::enable_shared_from_this<Connections>
     }
     if (id !=-1)  std::cout << "> Created connection with id " << id << std::endl;
 
-    // Using sleep for now, future work to wait for connection created success
+    // Pass map_coordinate_transformation to WSS for I2R frame -> RMF frame transform
+    adapter->node().get()->get_parameter("map_coordinate_transformation",
+      map_coordinate_transformation);
+    wssc->m_connection_list.at(0)->map_coordinate_transformation_ptr = 
+      std::make_unique<std::vector<double>>(map_coordinate_transformation);
+
+    // TODO: Using sleep for now, future work to wait for connection created success
     sleep(2); 
     std::string idme_cmd = mrccc_utils::mission_gen::identifyMe();
     std::cout << "Identify me!" << std::endl;
     wssc->send(id, idme_cmd);
-
-    // Using sleep for now, future work to wait for identify me success
+    // TODO: Handle "Error sending message: Bad Connection"
+    // TODO: Using sleep for now, future work to wait for identify me success
     sleep(2);
     std::string initpose_cmd = mrccc_utils::mission_gen::initRobotPose();
     wssc->send(id, initpose_cmd);
@@ -653,46 +659,38 @@ struct Connections : public std::enable_shared_from_this<Connections>
         std::make_shared<rmf_fleet_msgs::msg::FleetState>(
           wssc->m_connection_list.at(0)->fs_msg);
 
-    // float x = 17.30;
-    // float y = -21.521;
+    // auto is_within_range = 
+    //   [&](double input, double val, double range = 0.3) -> bool
+    // {
+    //     float high = val + range;
+    //     float low = val - range;
+    //     return  (low < input) && (input < high);
+    // };    
 
-    auto is_within_range = 
-      [&](double input, double val, double range = 0.3) -> bool
-    {
-        float high = val + range;
-        float low = val - range;
-        return  (low < input) && (input < high);
-    };    
+    // // For now, if fs_ptr does not have anythin by this point, return
+    // if (fs_ptr->robots.empty()) 
+    // {
+    //   std::cout<<"fs_ptr does not have anything by this point"<<std::endl;
+    //   return;
+    // }
 
-    // For now, if fs_ptr does not have anythin by this point, return
-    if (fs_ptr->robots.empty()) 
-    {
-      std::cout<<"fs_ptr does not have anything by this point"<<std::endl;
-      return;
-    }
+    // while( !(is_within_range(fs_ptr->robots.at(0).location.x, 13.25) &&
+    //       is_within_range(fs_ptr->robots.at(0).location.y, -1.1))
+    //       )
+    // {
+    //   if (is_within_range(fs_ptr->robots.at(0).location.x, 13.25))
+    //     std::cout<<"X is true";
+    //   else
+    //     std::cout<<"X is flase";
+    //   if (is_within_range(fs_ptr->robots.at(0).location.y, -1.1))
+    //     std::cout<<"Y is true";
+    //   else
+    //     std::cout<<"Y is false";
 
-    while( !(is_within_range(fs_ptr->robots.at(0).location.x, 13.25) &&
-          is_within_range(fs_ptr->robots.at(0).location.y, -1.1))
-          )
-    {
-      if (is_within_range(fs_ptr->robots.at(0).location.x, 13.25))
-        std::cout<<"X is true";
-      else
-        std::cout<<"X is flase";
-      if (is_within_range(fs_ptr->robots.at(0).location.y, -1.1))
-        std::cout<<"Y is true";
-      else
-        std::cout<<"Y is false";
-
-      std::cout << "Init me!" << std::endl;
-      wssc->send(id, initpose_cmd);
-      std::this_thread::sleep_for(std::chrono::seconds(2) );
-    }
-
-    adapter->node().get()->get_parameter("map_coordinate_transformation",
-      map_coordinate_transformation);
-    wssc->m_connection_list.at(0)->map_coordinate_transformation_ptr = 
-      std::make_unique<std::vector<double>>(map_coordinate_transformation);
+    //   std::cout << "Init me!" << std::endl;
+    //   wssc->send(id, initpose_cmd);
+    //   std::this_thread::sleep_for(std::chrono::seconds(2) );
+    // }
   }
 
   void wss_client_feedback()
@@ -744,7 +742,7 @@ struct Connections : public std::enable_shared_from_this<Connections>
         }
       }
       std::cout<<"Spinning feedback"<<std::endl;
-      // Need to put in a condition to kill this when main dies
+      // TODO: Need to put in a condition to kill this when main dies
     }
   }
 
@@ -1196,8 +1194,8 @@ int main(int argc, char* argv[])
   if (!fleet_connections)
     return 1;
 
-  auto fleetstate_feedback = std::async(std::launch::async, 
-    &Connections::wss_client_feedback, fleet_connections); 
+  // auto fleetstate_feedback = std::async(std::launch::async, 
+  //   &Connections::wss_client_feedback, fleet_connections); 
 
   RCLCPP_INFO(adapter->node()->get_logger(), "Starting Fleet Adapter");
 

@@ -71,19 +71,23 @@ void connection_metadata::on_close(client * c, websocketpp::connection_hdl hdl) 
 
 void connection_metadata::on_message(websocketpp::connection_hdl, client::message_ptr msg) {
     std::lock_guard<std::mutex> lck (_mtx);
+
     mrccc_utils::feedback_parser::RobotStateUpdate(
         msg->get_payload(), 
         fs_msg);
 
     // do the transformation here
-    for (auto& fs : fs_msg.robots)
+    if (!fs_msg.robots.empty())
     {
-        rmf_fleet_msgs::msg::Location _rmf_frame_location;
-        i2r_driver::transform_i2r_to_rmf(
-            (*map_coordinate_transformation_ptr.get()), 
-            fs.location,
-            _rmf_frame_location);
-        fs.location = _rmf_frame_location;
+        for (auto& fs : fs_msg.robots)
+        {
+            rmf_fleet_msgs::msg::Location _rmf_frame_location;
+            i2r_driver::transform_i2r_to_rmf(
+                (*map_coordinate_transformation_ptr.get()), 
+                fs.location,
+                _rmf_frame_location);
+            fs.location = _rmf_frame_location;
+        }
     }
 }
 

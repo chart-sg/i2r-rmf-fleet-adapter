@@ -73,7 +73,7 @@ void transform_i2r_to_rmf(
     const std::vector<double>& map_coordinate_transformation,
     const rmf_fleet_msgs::msg::Location& _fleet_frame_location,
     rmf_fleet_msgs::msg::Location& _rmf_frame_location) 
-{
+{   
     const Eigen::Vector2d translated =
         Eigen::Vector2d(_fleet_frame_location.x, _fleet_frame_location.y)
         - Eigen::Vector2d(

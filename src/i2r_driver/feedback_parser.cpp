@@ -70,7 +70,7 @@ rmf_fleet_msgs::msg::FleetState json_amclpose_to_fleetstate(
     _robot_state.location.index     = 0;
 
     fs.name               = std::string("tinyRobot");
-    fs.robots.emplace_back(_robot_state);
+    fs.robots.assign(1, _robot_state);
 
     return fs;
 }

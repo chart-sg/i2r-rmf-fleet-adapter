@@ -664,6 +664,7 @@ struct Connections : public std::enable_shared_from_this<Connections>
     // {
     //     float high = val + range;
     //     float low = val - range;
+    //     std::cout<<"Low: "<<low<<" input: "<<input<<" High: "<<high<<std::endl;
     //     return  (low < input) && (input < high);
     // };    
 
@@ -674,18 +675,18 @@ struct Connections : public std::enable_shared_from_this<Connections>
     //   return;
     // }
 
-    // while( !(is_within_range(fs_ptr->robots.at(0).location.x, 13.25) &&
-    //       is_within_range(fs_ptr->robots.at(0).location.y, -1.1))
+    // while( !(is_within_range(fs_ptr->robots.at(0).location.x, 17.794) &&
+    //       is_within_range(fs_ptr->robots.at(0).location.y, -21.161))
     //       )
     // {
-    //   if (is_within_range(fs_ptr->robots.at(0).location.x, 13.25))
-    //     std::cout<<"X is true";
+    //   if (is_within_range(fs_ptr->robots.at(0).location.x, 17.794))
+    //     std::cout<<"X is true"<<std::endl;
     //   else
-    //     std::cout<<"X is flase";
-    //   if (is_within_range(fs_ptr->robots.at(0).location.y, -1.1))
-    //     std::cout<<"Y is true";
+    //     std::cout<<"X is flase"<<std::endl;
+    //   if (is_within_range(fs_ptr->robots.at(0).location.y, -21.161))
+    //     std::cout<<"Y is true"<<std::endl;
     //   else
-    //     std::cout<<"Y is false";
+    //     std::cout<<"Y is false"<<std::endl;
 
     //   std::cout << "Init me!" << std::endl;
     //   wssc->send(id, initpose_cmd);
@@ -697,15 +698,16 @@ struct Connections : public std::enable_shared_from_this<Connections>
   {
     std::mutex _mtx;
 
-    rmf_fleet_msgs::msg::FleetState::SharedPtr fs_ptr =
-      std::make_shared<rmf_fleet_msgs::msg::FleetState>(
-        wssc->m_connection_list.at(0)->fs_msg);
-
     while(wssc)
     {
-      std::this_thread::sleep_for(std::chrono::milliseconds(200) );
+      std::this_thread::sleep_for(std::chrono::milliseconds(20) );
       const std::lock_guard<std::mutex> lck (_mtx);
     
+
+      rmf_fleet_msgs::msg::FleetState::SharedPtr fs_ptr =
+        std::make_shared<rmf_fleet_msgs::msg::FleetState>(
+          wssc->m_connection_list.at(0)->fs_msg);
+
       if (!fs_ptr->robots.empty())
       {
         std::cout.precision(3);
@@ -741,7 +743,6 @@ struct Connections : public std::enable_shared_from_this<Connections>
           command->update_state(state);
         }
       }
-      std::cout<<"Spinning feedback"<<std::endl;
       // TODO: Need to put in a condition to kill this when main dies
     }
   }
@@ -1194,8 +1195,8 @@ int main(int argc, char* argv[])
   if (!fleet_connections)
     return 1;
 
-  // auto fleetstate_feedback = std::async(std::launch::async, 
-  //   &Connections::wss_client_feedback, fleet_connections); 
+  auto fleetstate_feedback = std::async(std::launch::async, 
+    &Connections::wss_client_feedback, fleet_connections); 
 
   RCLCPP_INFO(adapter->node()->get_logger(), "Starting Fleet Adapter");
 

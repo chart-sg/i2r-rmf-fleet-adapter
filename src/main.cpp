@@ -606,34 +606,26 @@ struct Connections : public std::enable_shared_from_this<Connections>
 {
   ~Connections()
   {
-    wssc->close(0, websocketpp::close::status::normal, "Connection destructor called"); 
+    RCLCPP_INFO(adapter->node()->get_logger(),"Closing Connections");
+    wssc.reset();
+    // wssc->close(0, websocketpp::close::status::normal, "Connection destructor called"); 
     // Connection defaults to 0 for now
   }
 
   /// API for connection to WSS client
-  const std::shared_ptr<websocket_endpoint> wssc = std::make_shared<websocket_endpoint>();
-
-  int id = -1;
+  std::shared_ptr<websocket_endpoint> wssc = std::make_shared<websocket_endpoint>();
   std::vector<double> map_coordinate_transformation;
+  int id = -1; // ID for numerical identification of websocket_endpoint
+  websocketpp::lib::error_code ec;
+
   // Function for WSS client to initialise the connection
   void wss_client_init()
   {
+    websocketpp::lib::error_code _ec;
+
     // Connect to i2r robot    
     id = wssc->connect("https://mrccc.chart.com.sg:5100");
-    int tries =0;
-    while (id ==-1)
-    {
-      // If connection cannot be stablished, retry
-      std::cout<<"Connection to I2R websocket server failed. Retrying."<<std::endl;
-      sleep(1);
-      id = wssc->connect("https://mrccc.chart.com.sg:5100");
-      std::cout<<id<<std::endl;
-      if (tries == 5) 
-      {
-        throw "Connection to I2R websocket server timed out";
-      }
-      tries +=1;
-    }
+    sleep(1);  
     if (id !=-1)  std::cout << "> Created connection with id " << id << std::endl;
 
     // Pass map_coordinate_transformation to WSS for I2R frame -> RMF frame transform
@@ -645,14 +637,14 @@ struct Connections : public std::enable_shared_from_this<Connections>
     // TODO: Using sleep for now, future work to wait for connection created success
     sleep(2); 
     std::string idme_cmd = mrccc_utils::mission_gen::identifyMe();
-    std::cout << "Identify me!" << std::endl;
-    wssc->send(id, idme_cmd);
+    // std::cout << "Identify me!" << std::endl;
+    wssc->send(id, idme_cmd, _ec);
     // TODO: Handle "Error sending message: Bad Connection"
     // TODO: Using sleep for now, future work to wait for identify me success
     sleep(2);
     std::string initpose_cmd = mrccc_utils::mission_gen::initRobotPose();
-    wssc->send(id, initpose_cmd);
-    std::cout << "Init me!" << std::endl;
+    wssc->send(id, initpose_cmd, _ec);
+    // std::cout << "Init me!" << std::endl;
     sleep(2);
 
     rmf_fleet_msgs::msg::FleetState::SharedPtr fs_ptr =
@@ -689,9 +681,28 @@ struct Connections : public std::enable_shared_from_this<Connections>
     //     std::cout<<"Y is false"<<std::endl;
 
     //   std::cout << "Init me!" << std::endl;
-    //   wssc->send(id, initpose_cmd);
+    //   wssc->send(id, initpose_cmd, _ec);
     //   std::this_thread::sleep_for(std::chrono::seconds(2) );
     // }
+    
+    if (_ec)
+    {
+      // std::this_thread::sleep_for(std::chrono::seconds(2));
+      RCLCPP_ERROR(adapter->node()->get_logger(), 
+        "Failed to send message, resetting websocket_endpoint");
+      wssc.reset(new websocket_endpoint);
+      ec = _ec;
+      return;
+    }
+    else{
+      ec = _ec;
+      RCLCPP_INFO(adapter->node()->get_logger(),"Finished init");
+    }  
+  }
+
+  void check_init_completion()
+  {
+    while (ec) wss_client_init();
   }
 
   void wss_client_feedback()
@@ -708,14 +719,14 @@ struct Connections : public std::enable_shared_from_this<Connections>
         std::make_shared<rmf_fleet_msgs::msg::FleetState>(
           wssc->m_connection_list.at(0)->fs_msg);
 
-      if (!fs_ptr->robots.empty())
-      {
-        std::cout.precision(3);
-        std::cout<<std::fixed;
-        std::cout<<"fs_msg holds "<<fs_ptr->robots.at(0).location.x<<" "<<
-            fs_ptr->robots.at(0).location.y<<" "<<
-            fs_ptr->robots.at(0).location.yaw<<std::endl;
-      }
+      // if (!fs_ptr->robots.empty())
+      // {
+      //   std::cout.precision(3);
+      //   std::cout<<std::fixed;
+      //   std::cout<<"fs_msg holds "<<fs_ptr->robots.at(0).location.x<<" "<<
+      //       fs_ptr->robots.at(0).location.y<<" "<<
+      //       fs_ptr->robots.at(0).location.yaw<<std::endl;
+      // }
 
       const auto c = std::weak_ptr<Connections>(shared_from_this());
       std::string fleet_name = "tinyRobot";
@@ -1178,7 +1189,8 @@ std::shared_ptr<Connections> make_fleet(
           lift_clearance_srv);
   }
 
-  if (!RMF_DEBUG) connections->wss_client_init();
+  connections->wss_client_init();
+  connections->check_init_completion();
 
   return connections;
 }

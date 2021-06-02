@@ -39,7 +39,7 @@ rmf_fleet_msgs::msg::FleetState json_amclpose_to_fleetstate(
     rmf_fleet_msgs::msg::FleetState &fs,
     std::string str)
 {
-    std::cout<<str<<std::endl;
+    // std::cout<<str<<std::endl;
     // Implement move constructor here
     rmf_fleet_msgs::msg::RobotState _robot_state;
     

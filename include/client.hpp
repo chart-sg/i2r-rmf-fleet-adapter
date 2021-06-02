@@ -113,6 +113,7 @@ public:
     int connect(std::string const & uri);
 
     void close(int id, websocketpp::close::status::value code, std::string reason);
+    void send(int id, std::string message, websocketpp::lib::error_code& e);
     void send(int id, std::string message);
 
     connection_metadata::ptr get_metadata(int id) const;

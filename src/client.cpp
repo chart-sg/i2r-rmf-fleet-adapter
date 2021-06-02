@@ -153,6 +153,25 @@ void websocket_endpoint::close(int id, websocketpp::close::status::value code, s
     }
 }
 
+void websocket_endpoint::send(int id, std::string message, websocketpp::lib::error_code& e) {
+    websocketpp::lib::error_code ec;
+    
+    con_list::iterator metadata_it = m_connection_list.find(id);
+    if (metadata_it == m_connection_list.end()) {
+        std::cout << "> No connection found with id " << id << std::endl;
+        return;
+    }
+    
+    m_endpoint.send(metadata_it->second->get_hdl(), message, websocketpp::frame::opcode::text, ec);
+    if (ec) {
+        // std::cout << "> Error sending message: " << ec.message() << std::endl;
+        e = ec;
+        return;
+    }
+    
+    metadata_it->second->record_sent_message(message);
+}
+
 void websocket_endpoint::send(int id, std::string message) {
     websocketpp::lib::error_code ec;
     

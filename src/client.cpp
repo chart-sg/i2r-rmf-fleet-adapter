@@ -72,6 +72,9 @@ void connection_metadata::on_close(client * c, websocketpp::connection_hdl hdl) 
 void connection_metadata::on_message(websocketpp::connection_hdl, client::message_ptr msg) {
     std::lock_guard<std::mutex> lck (_mtx);
     rmf_fleet_msgs::msg::FleetState fs;
+
+    // std::cout<<msg->get_payload()<<std::endl;
+
     mrccc_utils::feedback_parser::RobotStateUpdate(
         msg->get_payload(), 
         fs);
@@ -155,7 +158,6 @@ void websocket_endpoint::close(int id, websocketpp::close::status::value code, s
 
 void websocket_endpoint::send(int id, std::string message, websocketpp::lib::error_code& e) {
     websocketpp::lib::error_code ec;
-    
     con_list::iterator metadata_it = m_connection_list.find(id);
     if (metadata_it == m_connection_list.end()) {
         std::cout << "> No connection found with id " << id << std::endl;
@@ -174,7 +176,7 @@ void websocket_endpoint::send(int id, std::string message, websocketpp::lib::err
 
 void websocket_endpoint::send(int id, std::string message) {
     websocketpp::lib::error_code ec;
-    
+    // std::cout<<message<<std::endl;
     con_list::iterator metadata_it = m_connection_list.find(id);
     if (metadata_it == m_connection_list.end()) {
         std::cout << "> No connection found with id " << id << std::endl;

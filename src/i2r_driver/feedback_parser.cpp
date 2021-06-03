@@ -36,10 +36,8 @@ enum StatusType
 
 rmf_fleet_msgs::msg::FleetState json_amclpose_to_fleetstate(
     const Json::Value& obj, 
-    rmf_fleet_msgs::msg::FleetState &fs,
-    std::string str)
+    rmf_fleet_msgs::msg::FleetState &fs)
 {
-    // std::cout<<str<<std::endl;
     // Implement move constructor here
     rmf_fleet_msgs::msg::RobotState _robot_state;
     
@@ -65,7 +63,7 @@ rmf_fleet_msgs::msg::FleetState json_amclpose_to_fleetstate(
         
     _robot_state.location.x         = obj["payload"]["pose"]["pose"]["position"]["x"].asFloat();
     _robot_state.location.y         = obj["payload"]["pose"]["pose"]["position"]["y"].asFloat();
-    _robot_state.location.yaw       = q.getAngle(); 
+    _robot_state.location.yaw       = q.getAngle() - 1.570796327; 
     _robot_state.location.level_name= "B1"; 
     _robot_state.location.index     = 0;
 
@@ -99,16 +97,14 @@ void RobotStateUpdate(
      }
     case kStatusCurrentCompletedSubMission:
     {
-        // std::cout<<"Feedback -> kStatusCurrentCompletedSubMission"
-            // <<std::endl;
+        // std::cout<<str<<std::endl;
         break;
     }
     case kStatusAMCLPose:
     {
         fs_msg = json_amclpose_to_fleetstate(
             obj, 
-            fs_msg, 
-            str);
+            fs_msg);
         break;
     }
     case kStatusUnknown:

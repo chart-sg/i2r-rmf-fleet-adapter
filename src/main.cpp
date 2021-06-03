@@ -230,7 +230,7 @@ public:
     }
 
     _path_requested_time = std::chrono::steady_clock::now();
-    _path_request_pub->publish(_current_path_request);
+    // _path_request_pub->publish(_current_path_request);
     std::string s = i2r_driver::send_i2r_line_following_mission(_node, 
       _current_path_request.task_id,
       _current_path_request.path);

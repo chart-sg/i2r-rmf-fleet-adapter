@@ -171,7 +171,7 @@ Json::Value Mission(int mission_type, const std::vector<rmf_fleet_msgs::msg::Loc
     if (mission_type == 10001) {
         // Line Following
         root["name"] = "line_following";
-        root["next"].append(Next(0, "line_following_status == 2"));
+        root["next"].append(Next(1, "line_following_status == 2"));
         root["rosparams"]["mission_data"] = Mission_Data(waypoint);
     } else {
         // Unknown Mode
@@ -238,6 +238,11 @@ std::string line_following(const int& task_id,
     root["payload"]["missions"].append(Mission(10001, waypoint));
     root["payload"]["missions"].append(mission_endl());
     root["payload"]["start_id"] = 1; // start_id of submission_uid
+    
+    std::cout<<"Sending path ending at position "<<
+        waypoint.back().x<<
+        waypoint.back().y<<
+        waypoint.back().yaw<<std::endl;
 
     Json::FastWriter print;
     std::string line_following = print.write(root);
@@ -342,10 +347,10 @@ std::string initRobotPose() {
     root["header"]["subcmd"] = 254;
 
     root["payload"]["pose"]["description"] = "2D Pose Estimate";
-    root["payload"]["pose"]["nav_angle_w"] = 0.698886; // In real life CHART -> 0.707 
+    root["payload"]["pose"]["nav_angle_w"] = 0.707; // In real life CHART -> 0.707 
     root["payload"]["pose"]["nav_angle_x"] = 0;
     root["payload"]["pose"]["nav_angle_y"] = 0; 
-    root["payload"]["pose"]["nav_angle_z"] = -0.715233; //In real life CHART -> -0.707
+    root["payload"]["pose"]["nav_angle_z"] = -0.707; //In real life CHART -> -0.707
     root["payload"]["pose"]["nav_map_name"] = "chart_map"; 
     root["payload"]["pose"]["nav_pose_x"] = 13.25; //In real life CHART -> 20.423;
     root["payload"]["pose"]["nav_pose_y"] = -1.1; //In real life CHART -> -5.312; 

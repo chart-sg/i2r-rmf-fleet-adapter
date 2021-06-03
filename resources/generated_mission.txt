@@ -1,0 +1,97 @@
+
+
+{
+   "header": {
+      "clientname": "CHART",
+      "cmd": 13,
+      "dest_clientname": "magni",
+      "requestid": 1,
+      "subcmd": 254
+   },
+   "payload": {
+      "mission_id": 1,
+      "mission_repeat_count": 0,
+      "mission_version": 1,
+      "missions": [
+         {
+            "description": "generic_line",
+            "gui": {
+               "x": 800,
+               "y": 600
+            },
+            "name": "line_following",
+            "next": [
+               {
+                  "and_condition": true,
+                  "condition": "line_following_status == 2",
+                  "id": 1
+               }
+            ],
+            "rosparams": {
+               "mission_data": "{\"all_goals\":[],\"exit_id\":-1,\"goal\":{\"goal_data\":{\"description\":\"\",\"nav_angle_w\":1,\"nav_angle_x\":0,\"nav_angle_y\":0,\"nav_angle_z\":0,\"nav_map_name\":\"\",\"nav_pose_x\":0,\"nav_pose_y\":0,\"nav_pose_z\":0},\"goal_id\":-1},\"line_name\":\"generic_line\",\"line_type\":0,\"points\":[{\"angle_accuracy\":0.29999999999999999,\"drive_forward\":1,\"group_id\":0,\"horn_mode\":-1,\"id\":0,\"map_x\":0,\"map_y\":0,\"nav_max_turn\":0.5,\"nav_max_vel\":1,\"nav_mode\":2,\"patience\":1,\"pose\":{\"description\":\"\",\"nav_angle_w\":0.69727554448810458,\"nav_angle_x\":0,\"nav_angle_y\":0,\"nav_angle_z\":0.71680319130066483,\"nav_map_name\":\"\",\"nav_pose_x\":13.237052917480469,\"nav_pose_y\":-1.0901663303375244,\"nav_pose_z\":0},\"position_accuracy\":0.29999999999999999,\"safety_mode\":1,\"steering_mode\":\"Differential\",\"time_limit_ms\":-1,\"using_custom_orientation\":false},{\"angle_accuracy\":0.29999999999999999,\"drive_forward\":1,\"group_id\":0,\"horn_mode\":-1,\"id\":1,\"map_x\":0,\"map_y\":0,\"nav_max_turn\":0.5,\"nav_max_vel\":1,\"nav_mode\":2,\"patience\":1,\"pose\":{\"description\":\"\",\"nav_angle_w\":0.98278434100004541,\"nav_angle_x\":0,\"nav_angle_y\":0,\"nav_angle_z\":-0.18475643178278386,\"nav_map_name\":\"\",\"nav_pose_x\":13.352660179138184,\"nav_pose_y\":-1.1352246999740601,\"nav_pose_z\":0},\"position_accuracy\":0.29999999999999999,\"safety_mode\":1,\"steering_mode\":\"Differential\",\"time_limit_ms\":-1,\"using_custom_orientation\":false},{\"angle_accuracy\":0.29999999999999999,\"drive_forward\":1,\"group_id\":0,\"horn_mode\":-1,\"id\":2,\"map_x\":0,\"map_y\":0,\"nav_max_turn\":0.5,\"nav_max_vel\":1,\"nav_mode\":2,\"patience\":1,\"pose\":{\"description\":\"\",\"nav_angle_w\":0.98278434100004541,\"nav_angle_x\":0,\"nav_angle_y\":0,\"nav_angle_z\":-0.18475643178278386,\"nav_map_name\":\"\",\"nav_pose_x\":13.352660179138184,\"nav_pose_y\":-1.1352246999740601,\"nav_pose_z\":0},\"position_accuracy\":0.29999999999999999,\"safety_mode\":1,\"steering_mode\":\"Differential\",\"time_limit_ms\":-1,\"using_custom_orientation\":false}],\"repeat_count\":0,\"start_id\":0}\n",
+               "retry_count": 0,
+               "retry_seconds": 0,
+               "rosparam_write_count_max": -1,
+               "tablettap_but_ids": [
+                  -2,
+                  -3,
+                  1,
+                  2,
+                  3
+               ],
+               "tablettap_but_names": [
+                  "Code Blue",
+                  "Code Red",
+                  "Resume",
+                  "Follow",
+                  "Continue"
+               ],
+               "tablettap_msg_timeout": 3,
+               "tablettap_print_tts": false,
+               "tablettap_tts": "",
+               "timeout_condition": "",
+               "timeout_time": 0
+            },
+            "submission_uid": 1,
+            "type": 10001
+         },
+         {
+            "description": "generic_line",
+            "gui": {
+               "x": 860,
+               "y": 690
+            },
+            "name": "completed",
+            "next": [],
+            "rosparams": {
+               "retry_count": 0,
+               "retry_seconds": 0,
+               "rosparam_write_count_max": -1,
+               "tablettap_but_ids": [
+                  -2,
+                  -3,
+                  1,
+                  2,
+                  3
+               ],
+               "tablettap_but_names": [
+                  "Code Blue",
+                  "Code Red",
+                  "Resume",
+                  "Follow",
+                  "Continue"
+               ],
+               "tablettap_msg_timeout": 3,
+               "tablettap_print_tts": false,
+               "tablettap_tts": "",
+               "timeout_condition": "",
+               "timeout_time": 0
+            },
+            "submission_uid": 2,
+            "type": -3
+         }
+      ],
+      "start_id": 1
+   }
+}
+

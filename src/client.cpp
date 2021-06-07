@@ -79,6 +79,16 @@ void connection_metadata::on_message(websocketpp::connection_hdl, client::messag
         msg->get_payload(), 
         fs);
 
+    // TODO : Process failed to terminate cleanly, no idea why for now.
+    
+    // if (!fs.robots.empty())
+    // {
+    //     std::cout<<"on_message, fs at x: "<<fs.robots.at(0).location.x
+    //         <<" y: "<<fs.robots.at(0).location.y
+    //         <<" z: "<<fs.robots.at(0).location.yaw
+    //         <<std::endl;
+    // }
+    
     // do the transformation here
     if (!fs.robots.empty())
     {
@@ -91,8 +101,8 @@ void connection_metadata::on_message(websocketpp::connection_hdl, client::messag
                 _rmf_frame_location);
             f.location = _rmf_frame_location;
         }
+        fs_msg = fs;
     }
-    fs_msg = fs;
 }
 
 int websocket_endpoint::connect(std::string const & uri) {

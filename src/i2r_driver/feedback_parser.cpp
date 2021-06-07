@@ -41,12 +41,19 @@ rmf_fleet_msgs::msg::FleetState json_amclpose_to_fleetstate(
     // Implement move constructor here
     rmf_fleet_msgs::msg::RobotState _robot_state;
     
+    // std::cout<<"Before converstion"
+    //     <<" Z: "<<obj["payload"]["pose"]["pose"]["orientation"]["z"].asFloat()
+    //     <<" W: "<<obj["payload"]["pose"]["pose"]["orientation"]["w"].asFloat()
+    //     <<std::endl;
+    
     // Creating quaternion class
     tf2::Quaternion q( obj["payload"]["pose"]["pose"]["orientation"]["x"].asFloat(),
 		obj["payload"]["pose"]["pose"]["orientation"]["y"].asFloat(),
 		obj["payload"]["pose"]["pose"]["orientation"]["z"].asFloat(),
 		obj["payload"]["pose"]["pose"]["orientation"]["w"].asFloat() 
 	);
+    q=q.normalize();
+    tf2::Matrix3x3 m(q);
 
     _robot_state.name               = std::move(obj["header"]["clientname"].asString());
     _robot_state.model              = "empty"; // ??????
@@ -55,7 +62,6 @@ rmf_fleet_msgs::msg::FleetState json_amclpose_to_fleetstate(
     _robot_state.mode.mode          = rmf_fleet_msgs::msg::RobotMode::MODE_IDLE;
     _robot_state.battery_percent    = 0;
 
-
     rclcpp::Time t (obj["payload"]["header"]["stamp"]["secs"].asFloat(),
         obj["payload"]["header"]["stamp"]["nsecs"].asFloat()
     );
@@ -63,7 +69,15 @@ rmf_fleet_msgs::msg::FleetState json_amclpose_to_fleetstate(
         
     _robot_state.location.x         = obj["payload"]["pose"]["pose"]["position"]["x"].asFloat();
     _robot_state.location.y         = obj["payload"]["pose"]["pose"]["position"]["y"].asFloat();
-    _robot_state.location.yaw       = q.getAngle() - 1.570796327; 
+    
+    double r,p,y;
+    m.getRPY(r, p ,y);
+
+    // std::cout<<"After converstion"
+    //     <<" Yaw: "<<y
+    //     <<std::endl;
+
+    _robot_state.location.yaw       = y; 
     _robot_state.location.level_name= "B1"; 
     _robot_state.location.index     = 0;
 

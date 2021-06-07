@@ -639,7 +639,6 @@ struct Connections : public std::enable_shared_from_this<Connections>
     std::string idme_cmd = mrccc_utils::mission_gen::identifyMe();
     // std::cout << "Identify me!" << std::endl;
     wssc->send(id, idme_cmd, _ec);
-    // TODO: Handle "Error sending message: Bad Connection"
     // TODO: Using sleep for now, future work to wait for identify me success
     sleep(2);
     std::string initpose_cmd = mrccc_utils::mission_gen::initRobotPose();

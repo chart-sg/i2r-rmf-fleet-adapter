@@ -168,6 +168,7 @@ void websocket_endpoint::close(int id, websocketpp::close::status::value code, s
 
 void websocket_endpoint::send(int id, std::string message, websocketpp::lib::error_code& e) {
     websocketpp::lib::error_code ec;
+    // std::cout<<message<<std::endl;
     con_list::iterator metadata_it = m_connection_list.find(id);
     if (metadata_it == m_connection_list.end()) {
         std::cout << "> No connection found with id " << id << std::endl;
@@ -176,7 +177,7 @@ void websocket_endpoint::send(int id, std::string message, websocketpp::lib::err
     
     m_endpoint.send(metadata_it->second->get_hdl(), message, websocketpp::frame::opcode::text, ec);
     if (ec) {
-        // std::cout << "> Error sending message: " << ec.message() << std::endl;
+        std::cout << "> Error sending message: " << ec.message() << std::endl;
         e = ec;
         return;
     }
@@ -186,7 +187,7 @@ void websocket_endpoint::send(int id, std::string message, websocketpp::lib::err
 
 void websocket_endpoint::send(int id, std::string message) {
     websocketpp::lib::error_code ec;
-    // std::cout<<message<<std::endl;
+    std::cout<<message<<std::endl;
     con_list::iterator metadata_it = m_connection_list.find(id);
     if (metadata_it == m_connection_list.end()) {
         std::cout << "> No connection found with id " << id << std::endl;

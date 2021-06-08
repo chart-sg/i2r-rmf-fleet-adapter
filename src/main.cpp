@@ -659,29 +659,34 @@ struct Connections : public std::enable_shared_from_this<Connections>
     //     return  (low < input) && (input < high);
     // };    
 
-    // // For now, if fs_ptr does not have anythin by this point, return
-    // if (fs_ptr->robots.empty()) 
-    // {
-    //   std::cout<<"fs_ptr does not have anything by this point"<<std::endl;
-    //   return;
-    // }
+    // For now, if fs_ptr does not have anythin by this point, return
+    if (fs_ptr->robots.empty()) 
+    {
+      std::cout<<"fs_ptr does not have anything by this point. Kill everything"
+        <<std::endl;
+      return;
+    }
 
-    // while( !(is_within_range(fs_ptr->robots.at(0).location.x, 17.794) &&
-    //       is_within_range(fs_ptr->robots.at(0).location.y, -21.161))
+    // double x=13.25;
+    // double y=-1.1;
+    // TODO: change this static position to a dynamic one, relying on the launch file
+    // TODO: Change the sleep to a method of synchronously waiting for the init to finish
+    // while( !(is_within_range(fs_ptr->robots.at(0).location.x, x) &&
+    //       is_within_range(fs_ptr->robots.at(0).location.y, y))
     //       )
     // {
-    //   if (is_within_range(fs_ptr->robots.at(0).location.x, 17.794))
+    //   if (is_within_range(fs_ptr->robots.at(0).location.x, x))
     //     std::cout<<"X is true"<<std::endl;
     //   else
     //     std::cout<<"X is flase"<<std::endl;
-    //   if (is_within_range(fs_ptr->robots.at(0).location.y, -21.161))
+    //   if (is_within_range(fs_ptr->robots.at(0).location.y, y))
     //     std::cout<<"Y is true"<<std::endl;
     //   else
     //     std::cout<<"Y is false"<<std::endl;
 
-    //   std::cout << "Init me!" << std::endl;
+    //   std::cout << "Initialising pose failed, lets try again!" << std::endl;
     //   wssc->send(id, initpose_cmd, _ec);
-    //   std::this_thread::sleep_for(std::chrono::seconds(2) );
+    //   std::this_thread::sleep_for(std::chrono::seconds(4) );
     // }
     
     if (_ec)
@@ -1215,6 +1220,6 @@ int main(int argc, char* argv[])
   adapter->start().wait();
 
   RCLCPP_INFO(adapter->node()->get_logger(), "Closing Fleet Adapter");
-
+  
   rclcpp::shutdown();
 }

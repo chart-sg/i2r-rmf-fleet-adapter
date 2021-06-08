@@ -55,7 +55,7 @@ rmf_fleet_msgs::msg::FleetState json_amclpose_to_fleetstate(
     q=q.normalize();
     tf2::Matrix3x3 m(q);
 
-    _robot_state.name               = std::move(obj["header"]["clientname"].asString());
+    _robot_state.name               = "magni";//std::move(obj["header"]["clientname"].asString());
     _robot_state.model              = "empty"; // ??????
     _robot_state.task_id            = "empty"; // ??????
     _robot_state.seq                = obj["payload"]["seq"].asUInt64(); // Increments for every new message
@@ -91,6 +91,7 @@ void RobotStateUpdate(
     const std::string& str, 
     rmf_fleet_msgs::msg::FleetState& fs_msg)
 {
+    std::cout<<str<<std::endl;
     Json::Value obj;
     obj = string_to_json_parser(str);
     status_id = (StatusType)obj["header"]["status_id"].asInt();
@@ -111,7 +112,9 @@ void RobotStateUpdate(
      }
     case kStatusCurrentCompletedSubMission:
     {
+        // std::cout<<"Request completed"<<std::endl;
         // std::cout<<str<<std::endl;
+        rmf_fleet_adapter::agv::RobotCommandHandle::RequestCompleted();
         break;
     }
     case kStatusAMCLPose:

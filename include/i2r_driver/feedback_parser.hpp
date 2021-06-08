@@ -12,7 +12,7 @@
 #include <tf2/LinearMath/Quaternion.h>
 #include <tf2/LinearMath/Matrix3x3.h>
 #include <rmf_fleet_msgs/msg/fleet_state.hpp>
-
+#include <rmf_fleet_adapter/agv/RobotCommandHandle.hpp>
 // #define TROUBLESHOOT false
 
 namespace mrccc_utils {

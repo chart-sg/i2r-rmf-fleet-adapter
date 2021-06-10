@@ -37,25 +37,10 @@ target_link_libraries(${CMAKE_PROJECT_NAME}
 target_include_directories(${CMAKE_PROJECT_NAME}
   PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
-
-# #### Test ###
-# add_executable(foo_test src/test.cpp)
-
-# target_link_libraries(foo_test   
-#   rmf_fleet_adapter::rmf_fleet_adapter
-#   jsoncpp
-#   )
-
-# install(
-#   TARGETS
-#   ${CMAKE_PROJECT_NAME}
-#   DESTINATION lib/${PROJECT_NAME})
-
-# install(
-#   TARGETS
-#   foo_test
-#   DESTINATION lib/${PROJECT_NAME})
-# #### ~Test ###
+install(
+  TARGETS
+  ${CMAKE_PROJECT_NAME}
+  DESTINATION lib/${PROJECT_NAME})
 
 install(
     DIRECTORY 

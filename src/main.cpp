@@ -229,8 +229,10 @@ public:
       _current_path_request.path.emplace_back(std::move(location));
     }
 
+    _wssc->m_connection_list.at(0)-> path_request_msg.path = _current_path_request.path;
+
     _path_requested_time = std::chrono::steady_clock::now();
-    // _path_request_pub->publish(_current_path_request);
+    _path_request_pub->publish(_current_path_request);
     std::string s = i2r_driver::send_i2r_line_following_mission(_node, 
       _current_path_request.task_id,
       _current_path_request.path);
@@ -553,13 +555,13 @@ public:
     if (need_to_replan)
       _travel_info.updater->interrupted();
   }
+  rmf_fleet_msgs::msg::PathRequest _current_path_request;
 
 private:
 
   rclcpp::Node* _node;
 
   PathRequestPub _path_request_pub;
-  rmf_fleet_msgs::msg::PathRequest _current_path_request;
   std::chrono::steady_clock::time_point _path_requested_time;
   TravelInfo _travel_info;
   std::optional<rmf_fleet_msgs::msg::RobotState> _last_known_state;
@@ -612,155 +614,8 @@ struct Connections : public std::enable_shared_from_this<Connections>
     // Connection defaults to 0 for now
   }
 
-  /// API for connection to WSS client
-  std::shared_ptr<websocket_endpoint> wssc = std::make_shared<websocket_endpoint>();
-  std::vector<double> map_coordinate_transformation;
-  int id = -1; // ID for numerical identification of websocket_endpoint
-  websocketpp::lib::error_code ec;
-
-  // Function for WSS client to initialise the connection
-  void wss_client_init()
-  {
-    websocketpp::lib::error_code _ec;
-
-    // Connect to i2r robot    
-    id = wssc->connect("https://mrccc.chart.com.sg:5100");
-    sleep(1);  
-    if (id !=-1)  std::cout << "> Created connection with id " << id << std::endl;
-
-    // Pass map_coordinate_transformation to WSS for I2R frame -> RMF frame transform
-    adapter->node().get()->get_parameter("map_coordinate_transformation",
-      map_coordinate_transformation);
-    wssc->m_connection_list.at(0)->map_coordinate_transformation_ptr = 
-      std::make_unique<std::vector<double>>(map_coordinate_transformation);
-
-    // TODO: Using sleep for now, future work to wait for connection created success
-    sleep(2); 
-    std::string idme_cmd = mrccc_utils::mission_gen::identifyMe();
-    // std::cout << "Identify me!" << std::endl;
-    wssc->send(id, idme_cmd, _ec);
-    // TODO: Using sleep for now, future work to wait for identify me success
-    sleep(2);
-    std::string initpose_cmd = mrccc_utils::mission_gen::initRobotPose();
-    wssc->send(id, initpose_cmd, _ec);
-    // std::cout << "Init me!" << std::endl;
-    sleep(2);
-
-    rmf_fleet_msgs::msg::FleetState::SharedPtr fs_ptr =
-        std::make_shared<rmf_fleet_msgs::msg::FleetState>(
-          wssc->m_connection_list.at(0)->fs_msg);
-
-    // auto is_within_range = 
-    //   [&](double input, double val, double range = 0.3) -> bool
-    // {
-    //     float high = val + range;
-    //     float low = val - range;
-    //     std::cout<<"Low: "<<low<<" input: "<<input<<" High: "<<high<<std::endl;
-    //     return  (low < input) && (input < high);
-    // };    
-
-    // For now, if fs_ptr does not have anythin by this point, return
-    if (fs_ptr->robots.empty()) 
-    {
-      std::cout<<"fs_ptr does not have anything by this point. Kill everything"
-        <<std::endl;
-      return;
-    }
-
-    // double x=13.25;
-    // double y=-1.1;
-    // TODO: change this static position to a dynamic one, relying on the launch file
-    // TODO: Change the sleep to a method of synchronously waiting for the init to finish
-    // while( !(is_within_range(fs_ptr->robots.at(0).location.x, x) &&
-    //       is_within_range(fs_ptr->robots.at(0).location.y, y))
-    //       )
-    // {
-    //   if (is_within_range(fs_ptr->robots.at(0).location.x, x))
-    //     std::cout<<"X is true"<<std::endl;
-    //   else
-    //     std::cout<<"X is flase"<<std::endl;
-    //   if (is_within_range(fs_ptr->robots.at(0).location.y, y))
-    //     std::cout<<"Y is true"<<std::endl;
-    //   else
-    //     std::cout<<"Y is false"<<std::endl;
-
-    //   std::cout << "Initialising pose failed, lets try again!" << std::endl;
-    //   wssc->send(id, initpose_cmd, _ec);
-    //   std::this_thread::sleep_for(std::chrono::seconds(4) );
-    // }
-    
-    if (_ec)
-    {
-      // std::this_thread::sleep_for(std::chrono::seconds(2));
-      RCLCPP_ERROR(adapter->node()->get_logger(), 
-        "Failed to send message, resetting websocket_endpoint");
-      wssc.reset(new websocket_endpoint);
-      ec = _ec;
-      return;
-    }
-    else{
-      ec = _ec;
-      RCLCPP_INFO(adapter->node()->get_logger(),"Finished init");
-    }  
-  }
-
-  void check_init_completion()
-  {
-    while (ec) wss_client_init();
-  }
-
-  void wss_client_feedback()
-  {
-    std::mutex _mtx;
-
-    while(wssc)
-    {
-      std::this_thread::sleep_for(std::chrono::milliseconds(20) );
-      const std::lock_guard<std::mutex> lck (_mtx);
-    
-
-      rmf_fleet_msgs::msg::FleetState::SharedPtr fs_ptr =
-        std::make_shared<rmf_fleet_msgs::msg::FleetState>(
-          wssc->m_connection_list.at(0)->fs_msg);
-
-      // if (!fs_ptr->robots.empty())
-      // {
-      //   std::cout.precision(3);
-      //   std::cout<<std::fixed;
-      //   std::cout<<"fs_msg holds "<<fs_ptr->robots.at(0).location.x<<" "<<
-      //       fs_ptr->robots.at(0).location.y<<" "<<
-      //       fs_ptr->robots.at(0).location.yaw<<std::endl;
-      // }
-
-      const auto c = std::weak_ptr<Connections>(shared_from_this());
-      std::string fleet_name = "tinyRobot";
-      
-      if (fs_ptr->name != fleet_name)
-        continue;
-
-      const auto connections = c.lock();
-      if (!connections)
-        return;
-      for (const auto& state : fs_ptr->robots)
-      {
-        const auto insertion = connections->robots.insert({state.name, nullptr});
-        const bool new_robot = insertion.second;
-        if (new_robot)
-        {
-          // We have not seen this robot before, so let's add it to the fleet.
-          connections->add_robot(fleet_name, state);
-        }
-
-        const auto& command = insertion.first->second;
-        if (command)
-        {
-          // We are ready to command this robot, so let's update its state
-          command->update_state(state);
-        }
-      }
-      // TODO: Need to put in a condition to kill this when main dies
-    }
-  }
+  rclcpp::Subscription<rmf_fleet_msgs::msg::PathRequest>::SharedPtr
+  path_request_sub;
 
   /// The API for adding new robots to the adapter
   rmf_fleet_adapter::agv::FleetUpdateHandlePtr fleet;
@@ -785,6 +640,9 @@ struct Connections : public std::enable_shared_from_this<Connections>
   /// The publisher for sending out mode requests
   rclcpp::Publisher<rmf_fleet_msgs::msg::ModeRequest>::SharedPtr
   mode_request_pub;
+
+  rclcpp::Publisher<rmf_fleet_msgs::msg::FleetState>::SharedPtr
+  fleet_state_pub;
 
   /// The client for listening to whether there is clearance in a lift
   rclcpp::Client<rmf_fleet_msgs::srv::LiftClearance>::SharedPtr
@@ -917,6 +775,105 @@ struct Connections : public std::enable_shared_from_this<Connections>
     });
   }
 
+  /// API for connection to WSS client
+  std::shared_ptr<websocket_endpoint> wssc;
+
+  std::vector<double> map_coordinate_transformation;
+  int id = -1; // ID for numerical identification of websocket_endpoint
+  websocketpp::lib::error_code ec;
+
+  // TODO: Define i2r specific message type for troubleshooting? 
+
+  // Function for WSS client to initialise the connection
+  void wss_client_init()
+  {
+    websocketpp::lib::error_code _ec;
+
+    // Connect to i2r robot    
+    id = wssc->connect("https://mrccc.chart.com.sg:5100");
+    wssc->node = adapter->node().get();
+      
+    if (id !=-1)  std::cout << "> Created connection with id " << id << std::endl;
+
+    // Pass map_coordinate_transformation to WSS for I2R frame -> RMF frame transform
+    adapter->node().get()->get_parameter("map_coordinate_transformation",
+      map_coordinate_transformation);
+    wssc->m_connection_list.at(0)->map_coordinate_transformation_ptr = 
+      std::make_unique<std::vector<double>>(map_coordinate_transformation);
+
+    // TODO: Using sleep for now, future work to wait for connection created success
+    sleep(2); 
+    std::string idme_cmd = mrccc_utils::mission_gen::identifyMe();
+    // std::cout << "Identify me!" << std::endl;
+    wssc->send(id, idme_cmd, _ec);
+    // TODO: Using sleep for now, future work to wait for identify me success
+    // sleep(2);
+    // std::string initpose_cmd = mrccc_utils::mission_gen::initRobotPose();
+    // wssc->send(id, initpose_cmd, _ec);
+    // std::cout << "Init me!" << std::endl;
+    sleep(2);
+
+    rmf_fleet_msgs::msg::FleetState::SharedPtr fs_ptr =
+        std::make_shared<rmf_fleet_msgs::msg::FleetState>(
+          wssc->m_connection_list.at(0)->fs_msg);
+
+    // auto is_within_range = 
+    //   [&](double input, double val, double range = 0.3) -> bool
+    // {
+    //     float high = val + range;
+    //     float low = val - range;
+    //     std::cout<<"Low: "<<low<<" input: "<<input<<" High: "<<high<<std::endl;
+    //     return  (low < input) && (input < high);
+    // };    
+
+    // For now, if fs_ptr does not have anythin by this point, return
+    if (fs_ptr->robots.empty()) 
+    {
+      throw "fs_ptr does not have anything by this point. Kill everything";
+    }
+
+    // double x=13.25;
+    // double y=-1.1;
+    // TODO: change this static position to a dynamic one, relying on the launch file
+    // TODO: Change the sleep to a method of synchronously waiting for the init to finish
+    // while( !(is_within_range(fs_ptr->robots.at(0).location.x, x) &&
+    //       is_within_range(fs_ptr->robots.at(0).location.y, y))
+    //       )
+    // {
+    //   if (is_within_range(fs_ptr->robots.at(0).location.x, x))
+    //     std::cout<<"X is true"<<std::endl;
+    //   else
+    //     std::cout<<"X is flase"<<std::endl;
+    //   if (is_within_range(fs_ptr->robots.at(0).location.y, y))
+    //     std::cout<<"Y is true"<<std::endl;
+    //   else
+    //     std::cout<<"Y is false"<<std::endl;
+
+    //   std::cout << "Initialising pose failed, lets try again!" << std::endl;
+    //   wssc->send(id, initpose_cmd, _ec);
+    //   std::this_thread::sleep_for(std::chrono::seconds(4) );
+    // }
+    
+    if (_ec)
+    {
+      // std::this_thread::sleep_for(std::chrono::seconds(2));
+      RCLCPP_ERROR(adapter->node()->get_logger(), 
+        "Failed to send message, resetting websocket_endpoint");
+      wssc.reset(new websocket_endpoint(fleet_state_pub));
+      ec = _ec;
+      return;
+    }
+    else{
+      ec = _ec;
+      RCLCPP_INFO(adapter->node()->get_logger(),"Finished init");
+    }  
+  }
+
+  void check_init_completion()
+  {
+    while (ec) wss_client_init();
+  }
+
   std::mutex _mutex;
   std::unique_lock<std::mutex> lock()
   {
@@ -967,8 +924,6 @@ std::shared_ptr<Connections> make_fleet(
         node->get_logger(), "map_coordinate_transformation: (%.3f, %.3f, %.3f, %.3f)",
         map_coordinate_transformation.at(0), map_coordinate_transformation.at(1),map_coordinate_transformation.at(2),map_coordinate_transformation.at(3));
   }
-  
-
 
   connections->traits = std::make_shared<rmf_traffic::agv::VehicleTraits>(
         rmf_fleet_adapter::get_traits_or_default(
@@ -1000,7 +955,7 @@ std::shared_ptr<Connections> make_fleet(
 
   // We disable fleet state publishing for this fleet adapter because we expect
   // the fleet drivers to publish these messages.
-  connections->fleet->fleet_state_publish_period((rmf_traffic::Duration)1);//std::nullopt);//rmf_traffic::Duration)1); 
+  connections->fleet->fleet_state_publish_period(std::nullopt); 
   
   connections->closed_lanes_pub =
     adapter->node()->create_publisher<rmf_fleet_msgs::msg::ClosedLanes>(
@@ -1183,6 +1138,43 @@ std::shared_ptr<Connections> make_fleet(
       rmf_fleet_msgs::msg::ModeRequest>(
         rmf_fleet_adapter::ModeRequestTopicName, rclcpp::SystemDefaultsQoS());
 
+  connections->fleet_state_pub = node->create_publisher<
+      rmf_fleet_msgs::msg::FleetState>(
+          rmf_fleet_adapter::FleetStateTopicName, rclcpp::SystemDefaultsQoS());
+
+  connections->fleet_state_sub = node->create_subscription<
+      rmf_fleet_msgs::msg::FleetState>(
+        rmf_fleet_adapter::FleetStateTopicName,
+        rclcpp::SystemDefaultsQoS(),
+        [c = std::weak_ptr<Connections>(connections), fleet_name](
+        const rmf_fleet_msgs::msg::FleetState::SharedPtr msg)
+  {
+    if (msg->name != fleet_name)
+      return;
+
+    const auto connections = c.lock();
+    if (!connections)
+      return;
+
+    for (const auto& state : msg->robots)
+    {
+      const auto insertion = connections->robots.insert({state.name, nullptr});
+      const bool new_robot = insertion.second;
+      if (new_robot)
+      {
+        // We have not seen this robot before, so let's add it to the fleet.
+        connections->add_robot(fleet_name, state);
+      }
+
+      const auto& command = insertion.first->second;
+      if (command)
+      {
+        // We are ready to command this robot, so let's update its state
+        command->update_state(state);
+      }
+    }
+  });
+        
   const std::string lift_clearance_srv =
       node->declare_parameter<std::string>(
         "experimental_lift_watchdog_service", "");
@@ -1193,6 +1185,8 @@ std::shared_ptr<Connections> make_fleet(
           lift_clearance_srv);
   }
 
+  // Start the WSS connection
+  connections->wssc = std::make_shared<websocket_endpoint>(connections->fleet_state_pub);
   connections->wss_client_init();
   connections->check_init_completion();
 
@@ -1210,9 +1204,6 @@ int main(int argc, char* argv[])
   const auto fleet_connections = make_fleet(adapter);
   if (!fleet_connections)
     return 1;
-
-  auto fleetstate_feedback = std::async(std::launch::async, 
-    &Connections::wss_client_feedback, fleet_connections); 
 
   RCLCPP_INFO(adapter->node()->get_logger(), "Starting Fleet Adapter");
 

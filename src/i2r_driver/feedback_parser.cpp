@@ -60,7 +60,7 @@ rmf_fleet_msgs::msg::FleetState json_amclpose_to_fleetstate(
     _robot_state.task_id            = "empty"; // ??????
     _robot_state.seq                = obj["payload"]["seq"].asUInt64(); // Increments for every new message
     _robot_state.mode.mode          = rmf_fleet_msgs::msg::RobotMode::MODE_IDLE;
-    _robot_state.battery_percent    = 0;
+    _robot_state.battery_percent    = 100;
 
     rclcpp::Time t (obj["payload"]["header"]["stamp"]["secs"].asFloat(),
         obj["payload"]["header"]["stamp"]["nsecs"].asFloat()
@@ -91,7 +91,6 @@ void RobotStateUpdate(
     const std::string& str, 
     rmf_fleet_msgs::msg::FleetState& fs_msg)
 {
-    std::cout<<str<<std::endl;
     Json::Value obj;
     obj = string_to_json_parser(str);
     status_id = (StatusType)obj["header"]["status_id"].asInt();

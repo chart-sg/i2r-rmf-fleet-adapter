@@ -12,6 +12,7 @@
 #include <map>
 #include <string>
 #include <sstream>
+#include <memory>
 
 #include "i2r_driver/i2r_driver.hpp"
 #include "i2r_driver/mission_gen.hpp"
@@ -23,13 +24,20 @@ class connection_metadata {
 public:
     typedef websocketpp::lib::shared_ptr<connection_metadata> ptr;
     typedef std::shared_ptr<boost::asio::ssl::context> context_ptr;
+    using FleetStatePub =
+      rclcpp::Publisher<rmf_fleet_msgs::msg::FleetState>::SharedPtr;
 
-    connection_metadata(int id, websocketpp::connection_hdl hdl, std::string uri)
+    connection_metadata(
+        int id, 
+        websocketpp::connection_hdl hdl, 
+        std::string uri,
+        FleetStatePub fleet_state_pub)
       : m_id(id)
       , m_hdl(hdl)
       , m_status("Connecting")
       , m_uri(uri)
       , m_server("N/A")
+      , m_fleet_state_pub(fleet_state_pub)
     {}
 
     static context_ptr on_tls_init(websocketpp::connection_hdl);
@@ -60,11 +68,12 @@ public:
     std::vector<std::string> m_messages;
 
     rmf_fleet_msgs::msg::FleetState fs_msg;
+    rmf_fleet_msgs::msg::PathRequest path_request_msg;
     std::unique_ptr<std::vector<double>>  map_coordinate_transformation_ptr;
-    
+    bool path_request_ready_flag = true;
 private:
     std::mutex _mtx;
-
+    FleetStatePub m_fleet_state_pub;
     int m_id;
     websocketpp::connection_hdl m_hdl;
     std::string m_status;
@@ -76,7 +85,14 @@ private:
 class websocket_endpoint {
 public:
 
-    websocket_endpoint () : m_next_id(0) {
+    using FleetStatePub =
+      rclcpp::Publisher<rmf_fleet_msgs::msg::FleetState>::SharedPtr;
+
+    websocket_endpoint (
+        FleetStatePub fleet_state_pub) : 
+        m_next_id(0),
+        _fleet_state_pub (std::move(fleet_state_pub))
+    {
         m_endpoint.clear_access_channels(websocketpp::log::alevel::all);
         m_endpoint.clear_error_channels(websocketpp::log::elevel::all);
 
@@ -85,12 +101,21 @@ public:
 
         m_thread = websocketpp::lib::make_shared<websocketpp::lib::thread>(&client::run, &m_endpoint);
     
-        mrccc_utils::mission_gen::identifyMe();
+        std::cout<<"Websocket_endpoint Connection started"<<std::endl;
+
+        // path_request_sub = node->create_subscription<
+        //     rmf_fleet_msgs::msg::PathRequest>(
+        //         "robot_path_requests",
+        //         rclcpp::SystemDefaultsQoS(),
+        //         [&](const rmf_fleet_msgs::msg::PathRequest::SharedPtr path_request)
+        //         {
+        //             // m_connection_list.at(0)->path_request_msg = *path_request.get();
+        //         }
+        //     );
     }
 
     ~websocket_endpoint() {
         m_endpoint.stop_perpetual();
-        
         for (con_list::const_iterator it = m_connection_list.begin(); it != m_connection_list.end(); ++it) {
             if (it->second->get_status() != "Open") {
                 // Only close open connections
@@ -106,7 +131,7 @@ public:
                           << ec.message() << std::endl;
             }
         }
-        
+        std::cout<<"Websocket_endpoint Connection closed"<<std::endl;
         m_thread->join();
     }
 
@@ -119,10 +144,15 @@ public:
     connection_metadata::ptr get_metadata(int id) const;
 
     typedef std::map<int,connection_metadata::ptr> con_list;
+    
+    
     con_list m_connection_list;
+    rclcpp::Node* node;
+    // rclcpp::Subscription<rmf_fleet_msgs::msg::PathRequest>::SharedPtr
+    //     path_request_sub;
 
 private:
-
+    FleetStatePub _fleet_state_pub;
     client m_endpoint;
     websocketpp::lib::shared_ptr<websocketpp::lib::thread> m_thread;
 

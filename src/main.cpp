@@ -229,7 +229,7 @@ public:
       _current_path_request.path.emplace_back(std::move(location));
     }
 
-    _wssc->m_connection_list.at(0)-> path_request_msg.path = _current_path_request.path;
+    _wssc->m_connection_list.at(0)-> path_request_msg = _current_path_request;
 
     _path_requested_time = std::chrono::steady_clock::now();
     _path_request_pub->publish(_current_path_request);

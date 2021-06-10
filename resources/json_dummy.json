@@ -1,0 +1,200 @@
+{
+  "header": {
+    "clientname": "magni",
+    "status_id": 0,
+    "status_msg": ""
+  },
+  "payload": {
+    "custom_status_data": [
+      {
+        "data": {
+          "cpu_load": [
+            {
+              "cpu1": 35.16483516483517
+            },
+            {
+              "cpu2": 42.2680412371134
+            },
+            {
+              "cpu3": 43.87755102040816
+            },
+            {
+              "cpu4": 35.714285714285715
+            },
+            {
+              "cpu5": 42.2680412371134
+            },
+            {
+              "cpu6": 41.66666666666667
+            },
+            {
+              "cpu7": 44.329896907216494
+            },
+            {
+              "cpu8": 42.10526315789473
+            },
+            {
+              "cpu9": 45.91836734693878
+            },
+            {
+              "cpu10": 96.07843137254902
+            },
+            {
+              "cpu11": 42.2680412371134
+            },
+            {
+              "cpu12": 40.625
+            }
+          ],
+          "cpu_temp": [
+            {
+              "acpitz": 95
+            },
+            {
+              "acpitz": 95
+            },
+            {
+              "pch_cannonlake": 55
+            },
+            {
+              "iwlwifi_1": 51
+            },
+            {
+              "x86_pkg_temp": 95
+            }
+          ],
+          "estop": false,
+          "hostname": "chart"
+        },
+        "name": "i2r_util_hardware_status_chart_15293_8123558245582632339",
+        "timestamp": "2021-06-10 13:03:28.606"
+      },
+      {
+        "data": {
+          "drivemode": 2,
+          "index": -1
+        },
+        "name": "line_following",
+        "timestamp": "2021-06-10 13:03:29.001"
+      }
+    ],
+    "mission_id": 1,
+    "mission_repeat_count": 0,
+    "mission_repeat_count_current": 1,
+    "mission_stack_count": 1,
+    "mission_state": 7,
+    "offline": 0,
+    "retry": [
+      0
+    ],
+    "retry_max": [
+      0
+    ],
+    "statuspub2_system_status": {
+      "battery_voltage": 0,
+      "cpu_usage": 0.19524894654750824,
+      "direct_status": 0,
+      "handbrake_status": 0,
+      "system_status": 1
+    },
+    "statuspub2_tasks_status": [
+      {
+        "id": 1,
+        "task_status": {
+          "tasksstat_id": [
+            1,
+            7,
+            8,
+            9,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19
+          ],
+          "tasksstat_status": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      },
+      {
+        "id": 0,
+        "task_status": {
+          "tasksstat_id": [
+            10,
+            6,
+            5,
+            2,
+            11,
+            4,
+            3
+          ],
+          "tasksstat_status": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      },
+      {
+        "id": 10000,
+        "task_status": {
+          "tasksstat_id": [
+            10000,
+            10001,
+            10002,
+            10003,
+            10004,
+            10005,
+            10006,
+            10007,
+            10008,
+            10009,
+            10010,
+            10011
+          ],
+          "tasksstat_status": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      }
+    ],
+    "submission_states": [
+      4
+    ],
+    "submission_uid": [
+      2
+    ],
+    "timestamp": "2021-06-10 13:03:29.489",
+    "yaml_map": "cafe_level_1"
+  }
+}

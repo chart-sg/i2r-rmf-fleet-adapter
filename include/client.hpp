@@ -72,6 +72,8 @@ public:
     std::unique_ptr<std::vector<double>>  map_coordinate_transformation_ptr;
     bool path_request_ready_flag = true;
 private:
+    int path_compeletion_status =-1;
+    std::string task_id = "empty";
     std::mutex _mtx;
     FleetStatePub m_fleet_state_pub;
     int m_id;

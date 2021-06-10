@@ -87,9 +87,20 @@ rmf_fleet_msgs::msg::FleetState json_amclpose_to_fleetstate(
     return fs;
 }
 
+void json_path_completion_status(const Json::Value& obj,
+    int & path_compeletion_status)
+{
+    const Json::Value& state = obj["payload"]["submission_states"];
+    std::cout<<"submission state is: "<<state[0].asInt()<<std::endl;;
+    
+    if (state[0].asInt() <4) return;
+    else path_compeletion_status = state[0].asInt();
+}
+
 void RobotStateUpdate(
     const std::string& str, 
-    rmf_fleet_msgs::msg::FleetState& fs_msg)
+    rmf_fleet_msgs::msg::FleetState& fs_msg,
+    int& path_compeletion_status)
 {
     Json::Value obj;
     obj = string_to_json_parser(str);
@@ -99,8 +110,8 @@ void RobotStateUpdate(
     {
     case kStatusStatusPub: // Does not have pose
     {
-        // std::cout<<"Feedback -> kStatusStatusPub"<<std::endl;
-        // fs = json_statuspub_to_fleetstate(obj); 
+        // json_get_path_recieved_ack(obj);
+        json_path_completion_status(obj, path_compeletion_status);
         break;
     }
     case kStatusMoveBaseFootprint: // Cant find message type, will have to see from msg->get_payload()

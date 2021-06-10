@@ -1,0 +1,113 @@
+{
+    "all_goals": [
+      
+    ],
+    "exit_id": -1,
+    "goal": {
+      "goal_data": {
+        "description": "",
+        "nav_angle_w": 1,
+        "nav_angle_x": 0,
+        "nav_angle_y": 0,
+        "nav_angle_z": 0,
+        "nav_map_name": "",
+        "nav_pose_x": 0,
+        "nav_pose_y": 0,
+        "nav_pose_z": 0
+      },
+      "goal_id": -1
+    },
+    "line_name": "generic_line",
+    "line_type": 0,
+    "points": [
+      {
+        "angle_accuracy": 0.29999999999999999,
+        "drive_forward": 1,
+        "group_id": 0,
+        "horn_mode": -1,
+        "id": 0,
+        "map_x": 0,
+        "map_y": 0,
+        "nav_max_turn": 0.5,
+        "nav_max_vel": 1,
+        "nav_mode": 2,
+        "patience": 1,
+        "pose": {
+          "description": "",
+          "nav_angle_w": 1,
+          "nav_angle_x": 0,
+          "nav_angle_y": 0,
+          "nav_angle_z": 8.2718987215457673e-09,
+          "nav_map_name": "",
+          "nav_pose_x": 13.000000953674316,
+          "nav_pose_y": -2.0000007152557373,
+          "nav_pose_z": 0
+        },
+        "position_accuracy": 0.29999999999999999,
+        "safety_mode": 1,
+        "steering_mode": "Differential",
+        "time_limit_ms": -1,
+        "using_custom_orientation": false
+      },
+      {
+        "angle_accuracy": 0.29999999999999999,
+        "drive_forward": 1,
+        "group_id": 0,
+        "horn_mode": -1,
+        "id": 1,
+        "map_x": 0,
+        "map_y": 0,
+        "nav_max_turn": 0.5,
+        "nav_max_vel": 1,
+        "nav_mode": 2,
+        "patience": 1,
+        "pose": {
+          "description": "",
+          "nav_angle_w": 0.55784729744970329,
+          "nav_angle_x": 0,
+          "nav_angle_y": 0,
+          "nav_angle_z": -0.82994360816145951,
+          "nav_map_name": "",
+          "nav_pose_x": 13.352660179138184,
+          "nav_pose_y": -1.1352246999740601,
+          "nav_pose_z": 0
+        },
+        "position_accuracy": 0.29999999999999999,
+        "safety_mode": 1,
+        "steering_mode": "Differential",
+        "time_limit_ms": -1,
+        "using_custom_orientation": false
+      },
+      {
+        "angle_accuracy": 0.29999999999999999,
+        "drive_forward": 1,
+        "group_id": 0,
+        "horn_mode": -1,
+        "id": 2,
+        "map_x": 0,
+        "map_y": 0,
+        "nav_max_turn": 0.5,
+        "nav_max_vel": 1,
+        "nav_mode": 2,
+        "patience": 1,
+        "pose": {
+          "description": "",
+          "nav_angle_w": 0.55784729744970329,
+          "nav_angle_x": 0,
+          "nav_angle_y": 0,
+          "nav_angle_z": -0.82994360816145951,
+          "nav_map_name": "",
+          "nav_pose_x": 13.352660179138184,
+          "nav_pose_y": -1.1352246999740601,
+          "nav_pose_z": 0
+        },
+        "position_accuracy": 0.29999999999999999,
+        "safety_mode": 1,
+        "steering_mode": "Differential",
+        "time_limit_ms": -1,
+        "using_custom_orientation": false
+      }
+    ],
+    "repeat_count": 0,
+    "start_id": 0
+  }

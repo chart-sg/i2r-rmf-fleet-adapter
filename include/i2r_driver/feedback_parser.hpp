@@ -21,7 +21,8 @@ namespace feedback_parser {
 Json::Value string_to_json_parser(std::string text);
 
 void RobotStateUpdate(const std::string& str, 
-    rmf_fleet_msgs::msg::FleetState& fs_msg);
+    rmf_fleet_msgs::msg::FleetState& fs_msg,
+    int& path_completion_status);
 
 } // feedback_parser
 } // mrccc_utils

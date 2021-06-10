@@ -73,21 +73,12 @@ void connection_metadata::on_message(websocketpp::connection_hdl, client::messag
     std::lock_guard<std::mutex> lck (_mtx);
     rmf_fleet_msgs::msg::FleetState fs;
 
-    // std::cout<<msg->get_payload()<<std::endl;
-
     mrccc_utils::feedback_parser::RobotStateUpdate(
         msg->get_payload(), 
-        fs);
+        fs,
+        path_compeletion_status);
 
     // TODO : Process failed to terminate cleanly, no idea why for now.
-    
-    // if (!fs.robots.empty())
-    // {
-    //     std::cout<<"on_message, fs at x: "<<fs.robots.at(0).location.x
-    //         <<" y: "<<fs.robots.at(0).location.y
-    //         <<" z: "<<fs.robots.at(0).location.yaw
-    //         <<std::endl;
-    // }
     
     // do the transformation here
     if (!fs.robots.empty())
@@ -95,16 +86,31 @@ void connection_metadata::on_message(websocketpp::connection_hdl, client::messag
         for (auto& f : fs.robots)
         {
             rmf_fleet_msgs::msg::Location _rmf_frame_location;
+
             i2r_driver::transform_i2r_to_rmf(
                 (*map_coordinate_transformation_ptr.get()), 
                 f.location,
                 _rmf_frame_location);
+
             f.location = _rmf_frame_location;
 
-            if(!path_request_msg.path.empty())
+            if (path_request_msg.task_id != task_id) // If task_id changed
             {
+                task_id = path_request_msg.task_id;
+
+                f.task_id = path_request_msg.task_id;
                 f.path = path_request_msg.path;
             }
+            else{
+                f.task_id = task_id;
+                if (path_compeletion_status == 4)
+                {
+                    path_compeletion_status = 0;
+                    // f.path.clear();
+                }
+            }
+            std::cout<<"path_request_msg.task_id "<<path_request_msg.task_id;
+            std::cout<<" task_id "<<task_id<<std::endl;
         }
         fs_msg = fs;
         m_fleet_state_pub->publish(fs_msg);

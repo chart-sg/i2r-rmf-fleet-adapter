@@ -79,8 +79,6 @@ void connection_metadata::on_message(websocketpp::connection_hdl, client::messag
         path_compeletion_status);
 
     // TODO : Process failed to terminate cleanly, no idea why for now.
-    
-    // do the transformation here
     if (!fs.robots.empty())
     {
         for (auto& f : fs.robots)
@@ -93,24 +91,8 @@ void connection_metadata::on_message(websocketpp::connection_hdl, client::messag
                 _rmf_frame_location);
 
             f.location = _rmf_frame_location;
-
-            if (path_request_msg.task_id != task_id) // If task_id changed
-            {
-                task_id = path_request_msg.task_id;
-
-                f.task_id = path_request_msg.task_id;
-                f.path = path_request_msg.path;
-            }
-            else{
-                f.task_id = task_id;
-                if (path_compeletion_status == 4)
-                {
-                    path_compeletion_status = 0;
-                    // f.path.clear();
-                }
-            }
-            std::cout<<"path_request_msg.task_id "<<path_request_msg.task_id;
-            std::cout<<" task_id "<<task_id<<std::endl;
+            f.path =     path_request_msg.path;
+            f.task_id =  path_request_msg.task_id;
         }
         fs_msg = fs;
         m_fleet_state_pub->publish(fs_msg);

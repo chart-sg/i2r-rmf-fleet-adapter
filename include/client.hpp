@@ -34,10 +34,11 @@ public:
         FleetStatePub fleet_state_pub)
       : m_id(id)
       , m_hdl(hdl)
-      , m_status("Connecting")
       , m_uri(uri)
-      , m_server("N/A")
       , m_fleet_state_pub(fleet_state_pub)
+      , m_status("Connecting")
+      , m_server("N/A")
+      
     {}
 
     static context_ptr on_tls_init(websocketpp::connection_hdl);
@@ -70,16 +71,15 @@ public:
     rmf_fleet_msgs::msg::FleetState fs_msg;
     rmf_fleet_msgs::msg::PathRequest path_request_msg;
     std::unique_ptr<std::vector<double>>  map_coordinate_transformation_ptr;
-    bool path_request_ready_flag = true;
-private:
     int path_compeletion_status =-1;
     std::string task_id = "empty";
+private:
     std::mutex _mtx;
     FleetStatePub m_fleet_state_pub;
     int m_id;
     websocketpp::connection_hdl m_hdl;
-    std::string m_status;
     std::string m_uri;
+    std::string m_status;
     std::string m_server;
     std::string m_error_reason;
 };
@@ -92,8 +92,8 @@ public:
 
     websocket_endpoint (
         FleetStatePub fleet_state_pub) : 
-        m_next_id(0),
-        _fleet_state_pub (std::move(fleet_state_pub))
+        _fleet_state_pub (std::move(fleet_state_pub)),
+        m_next_id(0)
     {
         m_endpoint.clear_access_channels(websocketpp::log::alevel::all);
         m_endpoint.clear_error_channels(websocketpp::log::elevel::all);
@@ -104,17 +104,7 @@ public:
         m_thread = websocketpp::lib::make_shared<websocketpp::lib::thread>(&client::run, &m_endpoint);
     
         std::cout<<"Websocket_endpoint Connection started"<<std::endl;
-
-        // path_request_sub = node->create_subscription<
-        //     rmf_fleet_msgs::msg::PathRequest>(
-        //         "robot_path_requests",
-        //         rclcpp::SystemDefaultsQoS(),
-        //         [&](const rmf_fleet_msgs::msg::PathRequest::SharedPtr path_request)
-        //         {
-        //             // m_connection_list.at(0)->path_request_msg = *path_request.get();
-        //         }
-        //     );
-    }
+  }
 
     ~websocket_endpoint() {
         m_endpoint.stop_perpetual();
@@ -149,9 +139,6 @@ public:
     
     
     con_list m_connection_list;
-    rclcpp::Node* node;
-    // rclcpp::Subscription<rmf_fleet_msgs::msg::PathRequest>::SharedPtr
-    //     path_request_sub;
 
 private:
     FleetStatePub _fleet_state_pub;

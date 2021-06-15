@@ -228,15 +228,45 @@ public:
 
       _current_path_request.path.emplace_back(std::move(location));
     }
-
-    _wssc->m_connection_list.at(0)-> path_request_msg = _current_path_request;
-
     _path_requested_time = std::chrono::steady_clock::now();
     _path_request_pub->publish(_current_path_request);
-    std::string s = i2r_driver::send_i2r_line_following_mission(_node, 
-      _current_path_request.task_id,
-      _current_path_request.path);
-    _wssc->send(0, s);
+
+    if (_wssc->m_connection_list.at(0)-> task_id != _current_path_request.task_id)
+    {
+      // If WSSC's task id is different from current path reequest id
+      // Update the path_request in WSSC
+      std::cout<<"Recieved a new path!"<<std::endl;
+      _wssc->m_connection_list.at(0)->path_request_msg = _current_path_request; 
+      Eigen::Vector2d p (_last_known_state->location.x,
+                       _last_known_state->location.y);
+      const Eigen::Vector2d p_last (_current_path_request.path.back().x,
+                                    _current_path_request.path.back().y);
+      const double dist = (p_last - p).norm();
+        
+      if (dist > 0.25 && 
+        (_wssc -> m_connection_list.at(0) -> path_compeletion_status != 4 ||
+        _wssc -> m_connection_list.at(0) -> path_compeletion_status != -1)  )
+      {
+        std::string s = i2r_driver::send_i2r_line_following_mission(_node, 
+        _current_path_request.task_id,
+        _current_path_request.path);
+        _wssc->send(0, s); 
+        _wssc->m_connection_list.at(0)-> path_compeletion_status=0;
+      }
+      else{
+          // If the robot is within range of the final goal, and has path_completion status
+          // says that it has completed its path.
+          std::cout<<"The robot is within 0.25m from final goal. Clear path!"<<std::endl;
+          _wssc->m_connection_list.at(0)->path_request_msg.path.clear();
+          _wssc->send(0, mrccc_utils::mission_gen::abort(10)); // abort active mission
+      }
+    }
+    else
+    {
+      // If WSSC's task id is the same as the current path request task id, this means
+      // the robot is still travelling to the target
+      std::cout<<"Path request recieved, but dropping because the robot is still travelling to target"<<std::endl;
+    }
   }
 
   void stop() final
@@ -364,14 +394,14 @@ public:
       if (state.task_id != _current_path_request.task_id)
       {
         // The robot has not received our path request yet
-        const auto now = std::chrono::steady_clock::now();
-        if (std::chrono::milliseconds(200) < now - _path_requested_time)
-        {
-          // We published the request a while ago, so we'll send it again in
-          // case it got dropped.
-          _path_requested_time = now;
-          _path_request_pub->publish(_current_path_request);
-        }
+        // const auto now = std::chrono::steady_clock::now();
+        // if (std::chrono::milliseconds(200) < now - _path_requested_time)
+        // {
+        //   // We published the request a while ago, so we'll send it again in
+        //   // case it got dropped.
+        //   _path_requested_time = now;
+        //   _path_request_pub->publish(_current_path_request);
+        // }
 
         return estimate_state(_node, state.location, _travel_info);
       }
@@ -783,17 +813,15 @@ struct Connections : public std::enable_shared_from_this<Connections>
   websocketpp::lib::error_code ec;
 
   // TODO: Define i2r specific message type for troubleshooting? 
-
   // Function for WSS client to initialise the connection
   void wss_client_init()
   {
     websocketpp::lib::error_code _ec;
 
     // Connect to i2r robot    
-    id = wssc->connect("https://mrccc.chart.com.sg:5100");
-    wssc->node = adapter->node().get();
-      
+    id = wssc->connect("https://mrccc.chart.com.sg:5100");      
     if (id !=-1)  std::cout << "> Created connection with id " << id << std::endl;
+    std::this_thread::sleep_for(std::chrono::seconds(2));
 
     // Pass map_coordinate_transformation to WSS for I2R frame -> RMF frame transform
     adapter->node().get()->get_parameter("map_coordinate_transformation",
@@ -802,64 +830,20 @@ struct Connections : public std::enable_shared_from_this<Connections>
       std::make_unique<std::vector<double>>(map_coordinate_transformation);
 
     // TODO: Using sleep for now, future work to wait for connection created success
-    sleep(2); 
     std::string idme_cmd = mrccc_utils::mission_gen::identifyMe();
-    // std::cout << "Identify me!" << std::endl;
     wssc->send(id, idme_cmd, _ec);
     // TODO: Using sleep for now, future work to wait for identify me success
-    // sleep(2);
+    
+    /// Function to init robot pose. Commenting out for now, use GUI to initialise
     // std::string initpose_cmd = mrccc_utils::mission_gen::initRobotPose();
     // wssc->send(id, initpose_cmd, _ec);
-    // std::cout << "Init me!" << std::endl;
-    sleep(2);
 
-    rmf_fleet_msgs::msg::FleetState::SharedPtr fs_ptr =
-        std::make_shared<rmf_fleet_msgs::msg::FleetState>(
-          wssc->m_connection_list.at(0)->fs_msg);
-
-    // auto is_within_range = 
-    //   [&](double input, double val, double range = 0.3) -> bool
-    // {
-    //     float high = val + range;
-    //     float low = val - range;
-    //     std::cout<<"Low: "<<low<<" input: "<<input<<" High: "<<high<<std::endl;
-    //     return  (low < input) && (input < high);
-    // };    
-
-    // For now, if fs_ptr does not have anythin by this point, return
-    if (fs_ptr->robots.empty()) 
-    {
-      throw "fs_ptr does not have anything by this point. Kill everything";
-    }
-
-    // double x=13.25;
-    // double y=-1.1;
-    // TODO: change this static position to a dynamic one, relying on the launch file
-    // TODO: Change the sleep to a method of synchronously waiting for the init to finish
-    // while( !(is_within_range(fs_ptr->robots.at(0).location.x, x) &&
-    //       is_within_range(fs_ptr->robots.at(0).location.y, y))
-    //       )
-    // {
-    //   if (is_within_range(fs_ptr->robots.at(0).location.x, x))
-    //     std::cout<<"X is true"<<std::endl;
-    //   else
-    //     std::cout<<"X is flase"<<std::endl;
-    //   if (is_within_range(fs_ptr->robots.at(0).location.y, y))
-    //     std::cout<<"Y is true"<<std::endl;
-    //   else
-    //     std::cout<<"Y is false"<<std::endl;
-
-    //   std::cout << "Initialising pose failed, lets try again!" << std::endl;
-    //   wssc->send(id, initpose_cmd, _ec);
-    //   std::this_thread::sleep_for(std::chrono::seconds(4) );
-    // }
-    
     if (_ec)
     {
       // std::this_thread::sleep_for(std::chrono::seconds(2));
       RCLCPP_ERROR(adapter->node()->get_logger(), 
         "Failed to send message, resetting websocket_endpoint");
-      wssc.reset(new websocket_endpoint(fleet_state_pub));
+      wssc.reset();
       ec = _ec;
       return;
     }

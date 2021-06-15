@@ -15,7 +15,7 @@ https://github.com/open-rmf/rmf
 sudo apt-get install -y libasio-dev
 ```
 # Putting socks (websockets) on Axolotl
-### Run the client and server example
+### Run the simple client and simple server example
 
 ### In one terminal, run the websocket server
 ```
@@ -42,6 +42,5 @@ cd ~/axolotl/src/axolotl/include/websocketpp/tutorials/utility_client
 cd ~/axolotl/src/axolotl/include/websocketpp/tutorials/utility_client/utility_server
 ```   
 ### To Do
-- Link it with dolly to try it out
 - Add WSS connection to MRCCC when adapter initialises
 - Update RobotCommandHandle

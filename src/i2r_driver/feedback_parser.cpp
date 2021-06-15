@@ -91,10 +91,15 @@ void json_path_completion_status(const Json::Value& obj,
     int & path_compeletion_status)
 {
     const Json::Value& state = obj["payload"]["submission_states"];
-    std::cout<<"submission state is: "<<state[0].asInt()<<std::endl;;
     
-    if (state[0].asInt() <4) return;
-    else path_compeletion_status = state[0].asInt();
+    if (state[0].asInt() <4) 
+    {
+        return;
+    }
+    else{
+        path_compeletion_status = state[0].asInt();
+        std::cout<<"submission state is: "<<state[0].asInt()<<std::endl;
+    } 
 }
 
 void RobotStateUpdate(

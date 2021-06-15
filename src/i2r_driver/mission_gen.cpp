@@ -255,6 +255,19 @@ std::string line_following(const int& task_id,
     return line_following;
 }
 
+std::string abort_all() {
+    Json::Value root;
+    
+    // building root data
+    root["header"] = cmd_header(10, "CHART", 29); // line_following cmd: 13
+    root["payload"];
+    
+    Json::FastWriter print;
+    std::string abort_all = print.write(root);
+    
+    return abort_all;
+}
+
 std::string abort(int task_id) {
     Json::Value root;
     Json::StreamWriterBuilder builder;

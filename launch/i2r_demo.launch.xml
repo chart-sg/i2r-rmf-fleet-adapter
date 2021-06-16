@@ -1,0 +1,38 @@
+<?xml version='1.0' ?>
+
+<launch>
+
+  <arg name="use_ignition" default="0"/>
+  <arg name="use_sim_time" default="false"/>
+  <arg name="gazebo_version" default="11"/>
+  <arg name="headless" default="false"/>
+
+  <!-- Common launch -->
+  <include file="$(find-pkg-share axolotl)/launch/common.launch.xml">
+    <arg name="headless" value="$(var headless)"/>
+    <arg name="use_sim_time" value="$(var use_sim_time)"/>
+    <arg name="viz_config_file" value ="$(find-pkg-share axolotl)/launch/include/chart.rviz"/>
+    <arg name="config_file" value="$(find-pkg-share rmf_i2r_maps)/chart/chart.building.yaml"/>     <!-- Replace this with your own map!-->
+    <arg name="dashboard_config_file" value="$(find-pkg-share axolotl)/launch/include/chart/dashboard_config.json"/>
+  </include>
+
+  <!-- Simulation launch -->
+  <!-- <include file="$(find-pkg-share axolotl)/simulation.launch.xml">
+    <arg name="headless" value="$(var headless)"/>
+    <arg name="map_package" value="rmf_i2r_maps" /> 
+    <arg name="map_name" value="chart" />
+    <arg name="use_ignition" value="$(var use_ignition)" />
+    <arg name="gazebo_version" value="$(var gazebo_version)" />
+  </include> -->
+
+  <!-- TinyRobot fleet adapter and robot state aggregator needed for the TinyRobot slotcar_plugin -->
+  <group>
+    <let name="fleet_name" value="tinyRobot"/>
+    <include file="$(find-pkg-share axolotl)/launch/testing_deliveryrobot_adapter.launch.xml">
+      <arg name="fleet_name" value="$(var fleet_name)"/>
+      <arg name="use_sim_time" value="$(var use_sim_time)"/>
+      <arg name="nav_graph_file" value="$(find-pkg-share rmf_i2r_maps)/maps/chart/nav_graphs/0.yaml" /> <!-- Replace this with your own map!-->
+    </include>
+  </group>
+
+</launch>

@@ -1,0 +1,32 @@
+{
+  "world_name" : "Chart World",  
+  "valid_task": ["Delivery", "Loop"],
+  "task": {
+    "Delivery": {
+      "option": {
+        "coke": {
+          "pickup_place_name": "pantry",
+          "pickup_dispenser": "coke_dispenser",
+          "dropoff_place_name": "hardware_2",
+          "dropoff_ingestor": "coke_ingestor"
+        }
+      }
+    },
+    "Loop": {
+      "places": [
+        "i2r_p1",
+        "i2r_p2",
+        "i2r_p3",
+        "i2r_p4"
+      ]
+    },
+    "Clean": {
+    },
+    "Station": {
+    },
+    "Patrol": {
+    },
+    "Charging": {
+    }
+  }
+}

@@ -18,8 +18,8 @@ sudo apt-get install -y libasio-dev
 ## Cloning your own workspace
 ```
 cd ~/
-mkdir axolotl_ws
-cd ~/axolotl_ws
+mkdir -p axolotl_ws/src
+cd ~/axolotl_ws/src
 git clone https://github.com/sharp-rmf/axolotl
 ```
 

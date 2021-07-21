@@ -1,18 +1,21 @@
 # i2r-rmf-fleet-adapter package
-This is a RMF full control fleet adapter for the i2r nav-stack.
-# Installation
-Follow the installation for the rmf_fleet_adapter here:
-https://github.com/open-rmf/rmf
+This is a RMF full control fleet adapter for the i2r nav-stack. Using RMF's full control fleet adapter API.
+
 ## Environment
 - ros2 Foxy
 - Ubuntu 20.04
 
+# Installation
+For the RMF adapter to work, you will need RMF. Please follow the installation for rmf here:
+https://github.com/open-rmf/rmf.
+
+But because RMF's main branch is in continuous development, please refer to the rmf.repos file in the resources folder for the exact git SHA commit to pull. The rest of the steps to install rmf should be followed from open-rmf/rmf README.md.
+
 ## Dependencies
+Of course, you will need RMF for the fleet adapter API.
 ```
 sudo apt-get install -y libasio-dev
 ```
-
-TODO: indicate version of RMF, and auxilaries being used
 
 ## Cloning your own workspace
 ```

@@ -1,5 +1,5 @@
-# Axolotl package
-
+# i2r-rmf-fleet-adapter package
+This is a RMF full control fleet adapter for the i2r nav-stack.
 # Installation
 Follow the installation for the rmf_fleet_adapter here:
 https://github.com/open-rmf/rmf

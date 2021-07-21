@@ -1,7 +1,4 @@
 # Axolotl package
-![Cute Photo](resources/axolotl.jpg)
-
-Trying out rmf_fleet_adapter new C++ API.
 
 # Installation
 Follow the installation for the rmf_fleet_adapter here:

@@ -131,6 +131,17 @@ void transform_rmf_to_i2r(
     _fleet_frame_location.yaw = 
         _rmf_frame_location.yaw + map_coordinate_transformation.at(2);
 
+    auto clamp_yaw = [&](double val) ->double
+    {
+        if ( val <= - M_PI )
+        {
+            val += 2*M_PI;
+        }
+        return val;
+    }; 
+    _fleet_frame_location.yaw  = clamp_yaw(_fleet_frame_location.yaw);
+
+
     _fleet_frame_location.t = _rmf_frame_location.t;
     _fleet_frame_location.level_name = _rmf_frame_location.level_name;
 }

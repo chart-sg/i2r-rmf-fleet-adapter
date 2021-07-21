@@ -15,6 +15,8 @@ https://github.com/open-rmf/rmf
 sudo apt-get install -y libasio-dev
 ```
 
+TODO: indicate version of RMF, and auxilaries being used
+
 ## Cloning your own workspace
 ```
 cd ~/
@@ -36,6 +38,41 @@ colcon build
 # Before running this step, make sure to generate your own map. Taking reference from ~/rmf_ws/demonstrations/rmf_demos/rmf_demos
 ros2 launch axolotl i2r_demo.launch.xml
 ```
+## RMF panel
+To send loop requests from the RMF panel, open firefox and type in:
+```
+localhost:5000
+```
+From the rmf panel, you can send loop requsts by using the drop down to indicate the start and stop location as well as the number of loops
+
+The panel should look something like this:
+
+![rmf_panel](resources/rmf_panel.png)
+
+## Configuring RMF panel to display your own places on the rmf panel
+Edit the configuration file dashboard_config.json and add your places to the list, in this example there are four points to be added to the rmf panel (i2r_p1 to i2r_p2). Then refer to https://github.com/open-rmf/rmf_demos/tree/main/rmf_demos_panel to compile your points.
+:
+```
+{
+  "world_name" : "Chart World",  
+  "valid_task": ["Delivery", "Loop"],
+  "task": {
+    "Delivery": {
+        ...
+    },
+    "Loop": {
+      "places": [
+        "i2r_p1",
+        "i2r_p2",
+        "i2r_p3",
+        "i2r_p4"
+      ]
+    },
+    ...
+  }
+}
+
+```
 
 ## Including server/ client's ip in hostname mapping
 
@@ -55,13 +92,12 @@ vim ~/etc/hosts
 192.168.50.107   jh-P95-96-97Ex-Rx #<!-- Insert this line!
 
 ```
-### The Secured Websocket's example's README is at:
+## Secured Websocket
+In this packge, the websocketpp header library is used to setup the secured websocket connection. Credits to Peter Thorson - websocketpp@zaphoyd.com. The author provided a few meaningful examples here: 
 ```
 cd /axolotl/src/axolotl/include/websocketpp/tutorials/utility_client 
 ```
 ```
 cd /axolotl/src/axolotl/include/websocketpp/tutorials/utility_client/utility_server
 ```   
-### To Do
-- Add WSS connection to MRCCC when adapter initialises
-- Update RobotCommandHandle
+## TODO:

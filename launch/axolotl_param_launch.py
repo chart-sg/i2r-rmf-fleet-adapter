@@ -4,9 +4,9 @@ from launch_ros.actions import Node
 def generate_launch_description():
     return LaunchDescription([
         Node(
-            package="axolotl",
-            executable="axolotl",
-            name="axolotl",
+            package="i2r-rmf-fleet-adapter",
+            executable="i2r-rmf-fleet-adapter",
+            name="i2r-rmf-fleet-adapter",
             output="screen",
             emulate_tty=True,
             parameters=[

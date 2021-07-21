@@ -7,7 +7,7 @@
   <arg name="nav_graph_file" description="Nav graph required by fleet adapter"/>
 
   <group>
-    <include file="$(find-pkg-share axolotl)/launch/fleet_adapter.launch.xml">
+    <include file="$(find-pkg-share i2r-rmf-fleet-adapter)/launch/fleet_adapter.launch.xml">
 
       <!-- The name and control type of the fleet -->
       <arg name="fleet_name" value="$(var fleet_name)"/>

@@ -274,7 +274,7 @@ std::string abort(int task_id) {
     const std::unique_ptr<Json::StreamWriter> writer(builder.newStreamWriter());
     std::ofstream output;
 
-    root["header"] = cmd_header(11, "axolotl", task_id); // cmd: 10 [abort active]; 11 [abort all]
+    root["header"] = cmd_header(11, "i2r-rmf-fleet-adapter", task_id); // cmd: 10 [abort active]; 11 [abort all]
     root["payload"] = {};
     Json::FastWriter print;
     std::string abort_mission = print.write(root);

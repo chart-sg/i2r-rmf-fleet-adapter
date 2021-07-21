@@ -5,10 +5,10 @@
 
   <group>
     <let name="fleet_name" value="Magni"/>
-    <include file="$(find-pkg-share axolotl)/launch/testing_deliveryrobot_adapter.launch.xml">
+    <include file="$(find-pkg-share i2r-rmf-fleet-adapter)/launch/testing_deliveryrobot_adapter.launch.xml">
       <arg name="fleet_name" value="$(var fleet_name)"/>
       <arg name="use_sim_time" value="false"/>
-      <arg name="nav_graph_file" value="$(find-pkg-share axolotl)/map/0.yaml" />
+      <arg name="nav_graph_file" value="$(find-pkg-share i2r-rmf-fleet-adapter)/map/0.yaml" />
     </include>
   </group>
 

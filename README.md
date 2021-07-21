@@ -17,23 +17,23 @@ TODO: indicate version of RMF, and auxilaries being used
 ## Cloning your own workspace
 ```
 cd ~/
-mkdir -p axolotl_ws/src
-cd ~/axolotl_ws/src
-git clone https://github.com/sharp-rmf/axolotl
+mkdir -p i2r-rmf-fleet-adapter_ws/src
+cd ~/i2r-rmf-fleet-adapter_ws/src
+git clone https://github.com/sharp-rmf/i2r-rmf-fleet-adapter
 ```
 
 ## Building the workspace
 ### Check that your open-rmf is working before this step. You can try it out by running rmf-demos, office.launch.xml
 ```
 source ~/rmf_ws/install/setup.bash
-cd ~/axolotl_ws
+cd ~/i2r-rmf-fleet-adapter_ws
 colcon build
 ```
 
 ## Running Axololt
 ```
 # Before running this step, make sure to generate your own map. Taking reference from ~/rmf_ws/demonstrations/rmf_demos/rmf_demos
-ros2 launch axolotl i2r_demo.launch.xml
+ros2 launch i2r-rmf-fleet-adapter i2r_demo.launch.xml
 ```
 ## RMF panel
 To send loop requests from the RMF panel, open firefox and type in:
@@ -92,9 +92,9 @@ vim ~/etc/hosts
 ## Secured Websocket
 In this packge, the websocketpp header library is used to setup the secured websocket connection. Credits to Peter Thorson - websocketpp@zaphoyd.com. The author provided a few meaningful examples here: 
 ```
-cd /axolotl/src/axolotl/include/websocketpp/tutorials/utility_client 
+cd /i2r-rmf-fleet-adapter/src/i2r-rmf-fleet-adapter/include/websocketpp/tutorials/utility_client 
 ```
 ```
-cd /axolotl/src/axolotl/include/websocketpp/tutorials/utility_client/utility_server
+cd /i2r-rmf-fleet-adapter/src/i2r-rmf-fleet-adapter/include/websocketpp/tutorials/utility_client/utility_server
 ```   
 ## TODO:

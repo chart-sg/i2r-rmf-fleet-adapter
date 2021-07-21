@@ -39,8 +39,8 @@
   <arg name="experimental_lift_watchdog_service" default="" description="(Experimental) The name of a service to check whether a robot can enter a lift"/>
   <arg name="map_coordinate_transformation" default="[0.0, 0.0, 0.0, 1.0]" description="Coordinate transformation (translation x, translation y, rotation, scale)"/>
 
-  <node pkg="axolotl"
-        exec="axolotl"
+  <node pkg="i2r-rmf-fleet-adapter"
+        exec="i2r-rmf-fleet-adapter"
         name="$(var fleet_name)_fleet_adapter"
         output="both">
 
